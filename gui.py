@@ -191,7 +191,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         scr = open(os.path.join(self.scrfilename.get_value()), 'r')
         script = scr.read()
         scr.close()
-        self.perse(script,self.logfile)
+        self.parse(script,self.logfile)
         todaydetail = datetime.datetime.today()
         self.outfile.write(todaydetail.strftime("%H.%M.%S")+" finished\n")
         self.outfile.close()
@@ -431,9 +431,9 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         if (self.isInLoop!=[]):#==True):
             self.isInLoop.pop()
             for head in self.lpHeader:
-                self.perse(head,self.logfile)
+                self.parse(head,self.logfile)
                 for commd in self.lpContain:
-                    self.perse(commd,self.logfile)
+                    self.parse(commd,self.logfile)
                 
             self.logfile.write( 'end of loop')
         return 0
