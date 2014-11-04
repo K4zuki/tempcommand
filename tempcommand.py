@@ -183,8 +183,6 @@ class tempcommand():
         
     commandset["LOOP"]=[_loop]
     
-    #print commandset["LOOP"]
-    
 if __name__ == '__main__':
     import tempcommand
     def _temp(temp=30):
