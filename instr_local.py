@@ -176,18 +176,18 @@ class sourcemeter(object):
     def sample(self,mode="voltage"):
         if mode == "voltage":
             pass
-        else if mode == "current":
+        elif mode == "current":
             pass
         
     # Read V
     def ReadVoltage (self, samples = 1, channel = 1, avg_mode = 'MOV', filt = 'ON', nplc = 1):
         if (channel == 1):
-                self.SMU.write("*CLS")
-                self.SMU.write(":ABOR")
-                self.SMU.write(":ARM:COUN 1;SOUR TIM")
-                self.SMU.write(":FUNC 'VOLT:DC';:VOLT:NPLC %f;:AVER:TCON %s;COUN %d;STAT %s"%(nplc, avg_mode, samples, flit))
-                self.SMU.write(":FORM:ELEM:SENS VOLT")
-                self.SMU.write(":INIT")
+            self.SMU.write("*CLS")
+            self.SMU.write(":ABOR")
+            self.SMU.write(":ARM:COUN 1;SOUR TIM")
+            self.SMU.write(":FUNC 'VOLT:DC';:VOLT:NPLC %f;:AVER:TCON %s;COUN %d;STAT %s"%(nplc, avg_mode, samples, flit))
+            self.SMU.write(":FORM:ELEM:SENS VOLT")
+            self.SMU.write(":INIT")
 
             self.SMU.ask('*OPC?')
 
