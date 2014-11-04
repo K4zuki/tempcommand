@@ -14,15 +14,10 @@ class tempcommand():
         self.commandset={}
     
     def perse(self,script,logfile):
-#        pass
         execute=-1
         for line in script.split('\n'):
-#            if self.cypress==0:  self.i2c  = usbio.usbio.I2C(self.cypress, 0x90)
-            
             for words in line.split('//')[0].split(','):
                 word=["".join(words.split())]
-#                word=["".join(word)]
-#                print words,word
                 for command in word:
                     time.sleep(0.1)
                     command=command.upper()
@@ -33,8 +28,6 @@ class tempcommand():
                             try:
                                 execute=self.commandset[comd][0](read[1])
                             except:
-                                #raw_input(str(comd)+": "+str(sys.exc_info()[1]))
-
                                 npyscreen.notify_confirm(str(comd)+str(read[1])+": "+str(traceback.print_tb(sys.exc_info()[2],None,logfile)),title="SUSPEND",editw=1)
 
                             logfile.write('\n')
@@ -52,27 +45,21 @@ class tempcommand():
         return True
 
     def make_list(self,script):
-#        execute=-1
         for line in script.split('\n'):
             for words in line.split('//')[0].split(','):
                 word=["".join(words.split())]
                 for command in word:
                     command=command.upper()
                     if command.split()==[]:continue
-#                    self.List.append(command)
                     for comd, func in self.commandset.iteritems():
                         read=command.split(comd)
                         if(read[0])=='':
                             try:
-#                                print comd
                                 self.commandList.append(comd)
                                 self.argumentList.append(read[1])
-                                #execute=self.commandset[comd][0](read[1])
                             except:
                                 npyscreen.notify_confirm(str(comd)+": "+str(sys.exc_info()[1]),title="SUSPEND",editw=1)
 
-#                            logfile.write('\n')
-#                            if execute==-1:break
                     else: continue
                     break
                     
@@ -103,9 +90,6 @@ class tempcommand():
 
         for command in comlist:
             try:
-                #print command
-#                        self.commandList.append(comd)
-#                        self.argumentList.append(read[1])
                 execute=self.commandset[command][0](arglist[cnt])
             except:
                 npyscreen.notify_confirm(str(command)+": "+str(sys.exc_info()[1]),title="SUSPEND",editw=1)
@@ -209,18 +193,12 @@ if __name__ == '__main__':
 
     def _for(times=1):
         global perser,logfile
-#        print perser,perser.perse
         perser.isInLoop.append(True)
-#        print perser.isInLoop
         var=times.split(";")
-#        print var
         lst=var[0].split("+")
-#        print lst
         for var[0] in lst:
             print str(var[1])+str(var[0])
             perser.lpHeader.append(str(var[1])+str(var[0]))
-#            perser.perse(str(var[2])+str(var[1]),logfile)
-#        print 'repeat for '+times+' :'
         return 0
 
     def _loop(dummy=-1):
@@ -235,14 +213,10 @@ if __name__ == '__main__':
                     perser.perse(commd,logfile)
                 
             print 'end of loop'
-#        print perser.isInLoop
-
-#        print 'loop'
         return 0
 
     def _sample(dummy=-1):
         global perser
-#        print perser.lpContain
         if (perser.isInLoop!=[]):
             perser.lpContain.append("SAMPLE")
             print 'Sample in loop'
@@ -253,7 +227,6 @@ if __name__ == '__main__':
     def _register(argument):
         global perser
         i2creg,i2cdata=argument.split('=')
-#        print perser.lpContain
         if (perser.isInLoop!=[]):
             perser.lpContain.append("REG"+argument)
             print 'reg address = 0x%03X, data = 0x%02X in inner loop' %( int(i2creg,16),int(i2cdata,16) )
@@ -263,7 +236,6 @@ if __name__ == '__main__':
         
     def _chanset(channels):
         global perser
-#        print 'set channels @'+channels
         if (perser.isInLoop!=[]):
             perser.lpContain.append("CHAN"+channels)
             print 'set channels @'+channels
@@ -273,7 +245,6 @@ if __name__ == '__main__':
         
     def _delay(_wait=1):
         global perser
-#        print 'set channels @'+channels
         if (perser.isInLoop!=[]):
             perser.lpContain.append("DELY"+_wait)
             print 'wait for: '+_wait+' minutes'
@@ -296,10 +267,8 @@ if __name__ == '__main__':
         perser.add_command("REG",_register)
         perser.add_command("CHAN",_chanset)
         perser.add_command("DELY",_delay)
-#        perser.add_command("REPEAT",_repeat)
         print perser.commandList
         print perser.argumentList
-#        script=
         perser.make_list(
             """chan105
             reg00=ff
@@ -318,15 +287,11 @@ if __name__ == '__main__':
             """
         )
         print perser.commandList
-#        print perser.argumentList
         reverse=perser.commandList[:]
         reverse.reverse()
         print reverse
-#        print ""
         hitp=perser.commandList.index('FOR')
         hitn=reverse.index('LOOP')
-#        print perser.commandList[hitp+1:-1*(hitn+1)]
-#        print perser.argumentList[hitp+1:-1*(hitn+1)]
         perser.perse(
             """
             for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
