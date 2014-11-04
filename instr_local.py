@@ -5,8 +5,6 @@ import os
 
 import textwrap
 
-#import instruments
-
 class powersupply(object):
     PSU=False
     rm=False
@@ -17,7 +15,6 @@ class powersupply(object):
             self.PSU = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
             self.PSU.write('INST P6V')
             self.PSU.write('CURR 1e0;:VOLT '+"3.7"+';')
-#            self.PSU.write('VOLT:PROT:STATE ON;:VOLT:PROT 5.6;')
         except:
             pass
 
@@ -32,7 +29,6 @@ class powersupply(object):
     def SetCurrent(self,current):
         try:
             self.PSU.write('CURR '+current)
-#            self.setvolt=volt
             return True
         except:
             pass
@@ -47,11 +43,8 @@ class powersupply(object):
     def output(self,on=False):
         if on:
             self.PSU.write('OUTPut 1')
-#            self.PSU.write('OUTPut ON')
         else:
             self.PSU.write('OUTPut 0')
-#            self.PSU.write('OUTPut OFF')
-#        pass
 
     def read(self):
         return self.setvolt
@@ -64,7 +57,6 @@ class sourcemeter(object):
     def __init__(self,resourcemanager,gpib):
         self.rm=resourcemanager
         self.SMU = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
-#        print self.SMU
         self.reset()
 
     def disconnect(self,visalib):
@@ -74,21 +66,15 @@ class sourcemeter(object):
         except:
             pass
 
-    # Resets Equipment
     def reset (self):
         self.SMU.write('*RST')
 
-    # Controls Beeper
-#    def beep (self, beeper = 'ON'):
-#        self.SMU.write(':SYST:BEEP:STAT %s' % beeper)
-
-    # Enable Outputs
     def output_enable (self, channel = 1):
         if (channel == 1):
             self.SMU.write(':OUTP:STAT 1;:INIT')
         else:
             raise Exception("Invalid channel selection CH{0}" .format(channel))
-    # Disable outputs
+
     def output_disable (self, channel = 1):
         self.SMU.write(':OUTP:STAT 0')
         if (channel != 1):
@@ -116,10 +102,6 @@ class sourcemeter(object):
             self.SMU.write(":SOUR:FUNC VOLT")
             self.SMU.write(":SOUR:VOLT:MODE FIX")
             self.SMU.write(":SOUR:VOLT %f"%(voltage))
-#            :SOUR:FUNC VOLT
-#            :SOUR:VOLT:MODE FIX
-#            :SOUR:VOLT %f
-#            '''%(voltage) ))
         else:
             raise Exception("Invalid channel selection CH{0}" .format(channel))
 
@@ -129,11 +111,6 @@ class sourcemeter(object):
             self.SMU.write(":SOUR:FUNC CURR")
             self.SMU.write(":SOUR:CURR:MODE FIX")
             self.SMU.write(":SOUR:CURR %f"%(current))
-#            self.SMU.write(textwrap.dedent ('''
-#            :SOUR:FUNC CURR
-#            :SOUR:CURR:MODE FIX
-#            :SOUR:CURR %f
-#            '''%(current) ))
         else:
             raise Exception("Invalid channel selection CH{0}" .format(channel))
 
@@ -143,11 +120,6 @@ class sourcemeter(object):
             self.SMU.write(":SOUR:FUNC CURR")
             self.SMU.write(":SOUR:CURR:MODE FIX")
             self.SMU.write(":SENS:VOLT:DC:PROT:LEV %f"%(voltage))
-#            self.SMU.write(textwrap.dedent ('''
-#            :SOUR:FUNC CURR
-#            :SOUR:CURR:MODE FIX
-#            :SENS:VOLT:DC:PROT:LEV %f
-#            '''%(voltage) ))
         else:
             raise Exception("Invalid channel selection CH{0}" .format(channel))
 
@@ -249,20 +221,6 @@ class sourcemeter(object):
         else:
             raise Exception("Invalid channel selection CH{0}" .format(channel))
 
-    # Read W
-#    def read_w (self, samples=1, channel=1):
-#        if (channel == 1):
-#            self.SMU.write(textwrap.dedent ('''
-#            :CALC:MATH:NAME "POWER"
-#            :CALC:STAT ON
-#            :INIT
-#            ''' ))
-#
-#            return float(self.SMU.ask(":CALC:DATA?"))
-#
-#        else:
-#            raise Exception("Invalid channel selection CH{0}" .format(channel))
-
     #Set I range for the display
     def set_range_display (self, digits = 7, channel = 1):
         if (channel == 1):
@@ -290,13 +248,8 @@ class multimeter(object):
 
             self.VOLTMETER.write("INP:IMP:AUTO ON")
             
-#        self.VOLTMETER = self.rm.get_instrument("SENS:VOLT:IMP:AUTO ON")
-#        self.VOLTMETER = self.rm.get_instrument(gpib)#debug code
-
     def sample(self):
         read=self.VOLTMETER.ask('READ?')
-#        read=self.VOLTMETER.read()
-        #print( ">>>" +read+'\n')
         return read
 
     def disconnect(self,visalib):
@@ -315,10 +268,7 @@ class multimeter2(object):
         if self.isUse == True:
             self.VOLTMETER2 = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
             read=self.VOLTMETER2.ask('*IDN?')
-#            read=self.VOLTMETER2.read()
-            #print( ">>>" +self.VOLTMETER2.read()+'\n')
             self.VOLTMETER2.write('*RST')
-            #print(self.channels)
 
     def sample(self):
         if self.isUse == True:
@@ -328,40 +278,24 @@ class multimeter2(object):
             self.VOLTMETER2.write('SENS:VOLT:DC:NPLC 2, '+self.channels    )
             self.VOLTMETER2.write('SENS:VOLT:DC:RANG:AUTO ON, '+self.channels    )
             self.VOLTMETER2.write('TRIG:SOUR IMM')
-#            self.VOLTMETER2.write('TRIG:TIM MIN')
             self.VOLTMETER2.write('TRIG:COUNT 1.0e0')
             self.VOLTMETER2.write('INIT')
-#            self.VOLTMETER2.write('*OPC?')
             read=self.VOLTMETER2.ask("*OPC?")
-            #print( ">>>" + self.VOLTMETER2.read()+'\n')
             read=self.VOLTMETER2.ask('READ?')#
-#            read=self.VOLTMETER2.read()
-            #print( ">>>" + read+'\n')
             return read
         return 0
 
     def setChannel(self,chanlist):
         if self.isUse == True:
             self.channels = chanlist
-#            self.VOLTMETER2.write('SYST:PRES')
             self.VOLTMETER2.write('CONF:VOLT:DC 10,1.0e-5,'+chanlist)
             self.VOLTMETER2.write('ROUT:SCAN '+chanlist)
             self.VOLTMETER2.write('ROUT:CHAN:DEL:AUTO OFF, '+chanlist    )
             self.VOLTMETER2.write('ROUT:CHAN:DEL 2e-1, '+chanlist    )
             self.VOLTMETER2.write('FORM:READ:TIME:TYPE ABS')
-#            self.VOLTMETER2.write('FORM:READ:ALAR OFF')
             self.VOLTMETER2.write('FORM:READ:CHAN ON')
-#            self.VOLTMETER2.write('FORM:READ:TIME OFF')
-#            self.VOLTMETER2.write('FORM:READ:UNIT OFF')
             self.VOLTMETER2.write('SENS:FUNC "VOLT:DC", '+self.channels    )
             self.VOLTMETER2.write('INP:IMP:AUTO ON,'+self.channels    )#
-    
-#            self.VOLTMETER2.write('SENS:VOLT:DC:NPLC 2, '+self.channels    )
-#            self.VOLTMETER2.write('SENS:VOLT:DC:RANG:AUTO ON, '+self.channels    )
-#            self.VOLTMETER2.write('TRIG:SOUR IMM')
-#            self.VOLTMETER2.write('TRIG:TIM MIN')
-#            self.VOLTMETER2.write('TRIG:COUNT 1.0e0')
-
         return True
 
     def disconnect(self,visalib):
@@ -378,32 +312,20 @@ class chamber(object):
         self.rm=resourcemanager
         self.CHAMBER = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
         self.CHAMBER.ask('ROM?')
-        #print( ">>>" + self.CHAMBER.read()+'\n')
-#        self.CHAMBER.read()
         self.CHAMBER.ask("MODE, STANDBY")
-#        self.CHAMBER.read()
-        #print( ">>>" + self.CHAMBER.read()+'\n')
         if isCtrl == True:
             self.CHAMBER.ask("MODE, CONSTANT")
-#            self.CHAMBER.read()
-            #print(">>>"+self.CHAMBER.read()+'\n')
-        
+
     def getTemp(self):
-#        self.CHAMBER.write("TEMP?")
         read=self.CHAMBER.ask("TEMP?")
-        #print( ">>>" + read+'\n')
         return read.split(',')
 
     def setTemp(self,temp):
         read=self.CHAMBER.ask("TEMP,s"+temp)
-#        self.CHAMBER.read()
-        #print( ">>>" + self.CHAMBER.read()+'\n')
         return read
         
     def close(self):
         self.CHAMBER.ask("MODE, STANDBY")
-#        self.CHAMBER.read()
-        #print( ">>>" + self.CHAMBER.read()+'\n')
         return True
     
     def disconnect(self,visalib):
