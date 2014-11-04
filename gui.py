@@ -11,53 +11,17 @@ import time
 import datetime
 import os,sys,stat
 import uli
-#import threading
 
 
 class TempCtrl(npyscreen.NPSAppManaged):
     def onStart(self):
         self.mainform=self.addForm("MAIN", MainForm, name="\tTemerature Control and measurement\t",color="GOOD" , )
-#        self.popup=self.addForm("SUB", SubForm, name="Sub Form", color="IMPORTANT" , )
 
     def change_form(self, name):
         self.switchForm(name)
         self.resetHistory()
 
-#class SubForm(npyscreen.ActionForm):
-#    def create(self):
-#        self.add(npyscreen.TitleText, name = "Text:", value= "I am subscreen!" )#,editable=False)
-#        self.t=threading.Thread(target=self.hello)
-#        self.shell=self.parentApp.mainform.shell
-#        self.parentApp.mainform.shellResponse(self.name)
-#        self.t.start()
-#    
-#    def activate(self):
-#        self.self.shellResponse("Editing Sub")
-#        self.display()
-#        while True:pass
-#        
-#    def shellResponse(self,string):
-#        self.shell.value = ">>> "+str(string)+"\n"+self.shell.value
-#        self.display()
-#
-#    def on_ok(self):
-#        pass
-#        self.parentApp.mainform.shellResponse(self.name)
-#        time.sleep(.0001)
-#        self.parentApp.NEXT_ACTIVE_FORM = "MAIN"
-#        self.t.cancel()
-#        self.parentApp.change_form("MAIN")
-#        
-#    def hello(self):
-#        self.self.shellResponse("changed from subform.hello()")
-#        self.t=threading.Timer(10,self.hello)
-#        self.t.start()
-#        
-#    def while_editing(self):
-#        self.self.shellResponse("changed from subform.hello()")
-#        self.display()
-#        self.t.start()
-        
+
 class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
     TCrun=False
     isSuspend=False
@@ -69,10 +33,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
     uli2c=[False,False]
     cypress=-99
     def create(self): 
-#        self.wStatus1CHAN') .value="hoge"
-#        self.wStatus2.value="foo"
-#        self.add(npyscreen.FixedText, name = "Text:", value= "-----\tTemerature Control and measurement\t-----", editable=False )
-        
         self.commandset={}
         self.add_command("EOF",     self._eof)
         self.add_command("TEMP",    self._temp)
@@ -87,17 +47,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("UREG",   self._uliregister)
         self.add_command("CHAN",    self._chanset)
 
-#        self.add_command("TEMP",    self.__temp)
-#        self.add_command("SAMPLE",  self.__sample)
-#        self.add_command("SUSPEND", self.__suspend)
-#        self.add_command("VOLT",    self.__volt)
-#        self.add_command("DELY",    self.__delay)
-#        self.add_command("BASE",    self.__base)
-#        self.add_command("REG",     self.__register)
-#        self.add_command("UBASE",   self.__ulibase)
-#        self.add_command("UREG",    self.__uliregister)
-#        self.add_command("CHAN",    self.__chanset)
-        
         self.add_command("FOR",    self._for)
         self.add_command("LOOP",    self._loop)
         
@@ -107,11 +56,11 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16")
         self.isctrl_chamber = self.add(npyscreen.CheckBox, value = False, name="Control Temp")
         self.dmm1 = self.add(npyscreen.TitleText, name = "Multimeter1:", value="2")
-        self.isUSB_dmm1= self.add(npyscreen.CheckBox, value = False, name="34461A")# ,color="CRITICAL")
+        self.isUSB_dmm1= self.add(npyscreen.CheckBox, value = False, name="34461A")
         self.dmm2 = self.add(npyscreen.TitleText, name = "Multimeter2:", value="10")
         self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = False, name="Use")
         self.Tcurrent = self.add(npyscreen.TitleFixedText,  name = "current temp:",
-            value="    27.0 oC    >>>",max_width=40, editable=False)#,name = "current:"
+            value="    27.0 oC    >>>",max_width=40, editable=False)
         self.nextrely-=1
         self.Ttarget = self.add(npyscreen.TitleFixedText, name = "target temp:",
             value="27.0 oC", editable=False,relx=40)
@@ -120,33 +69,11 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shell = self.add(npyscreen.MultiLineEdit, scroll_end=True, value = ">>>\n", name="log:",
             multiline=True, editable=False)
         
-#        self.t=threading.Timer(10,self.hello)
-#        self.t.cancel()
-
-#        self.shellResponse(self.parentApp)
-#        self.parentApp.change_form("SUB")
-        
-#        self.add_handlers({"^T": self.change_forms})
-        
-#    def hello(self):
-#        self.shellResponse("changed from mainform.hello()")
-#        self.t=threading.Timer(10,self.hello)
-#        if self.isSuspend:
-#            self.t.start()
-#        else:
-#            self.t.cancel()
-#        npyscreen.notify("\n\t\tSUSPEND",title="SUSPEND")#,editw=1)
-
-#        self.hoge.display()
-
     def shellResponse(self,string):
         self.shell.value = ">>> "+str(string)+"\n"+self.shell.value
         self.display()
-#        if(self.isSuspend):
-#            self.parentApp.popup.display()
-        
+
     def change_forms(self, *args, **keywords):
-#        pass
         self.shellResponse("hoge")
         
     def on_cancel(self):
@@ -157,7 +84,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.exit_application()
         else:
             self.shellResponse( " ### cancel before TCrun: just close ### ")
-#            self.shellResponse( self)
             self.display()
             time.sleep(1)
             self.exit_application()
@@ -188,10 +114,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
     def exit_application(self):
         self.parentApp.NEXT_ACTIVE_FORM = None
         self.editing = False
-#        self.parentApp.popup.t.cancel()
 
     def tc_run(self):
-#        self.color="IMPORTANT"
         isdebug=False
         lib=rm=False
         todaydetail = datetime.datetime.today()
@@ -206,9 +130,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         
         self.logfile=open(filename+".log",'a')
 
-#        self.shellResponse("called tc_run")
         try:
-#            sys.stdout = self.logfile
             self.cypress = usbio.usbio.autodetect()
             sys.stdout = sys.__stdout__
         except :
@@ -230,7 +152,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         if(chan0==[]): self.uli2c[0]=False
         if(chan1==[]): self.uli2c[1]=False
         if(chan0==[] and chan1==[]):
-#            self.uli2c=False
             self.shellResponse("no SAM3U I2C connected")
 
         self.shellResponse( self.uli2c )
@@ -265,47 +186,12 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.A34970A = instr_local.dummy()
             npyscreen.notify_confirm(str(sys.exc_info()[1]),title="SUSPEND",editw=1)
             self.logfile.write("=-=-=-=-= using dummy instruments =-=-=-=-=\n")
-#        self.logfile.write ("A34970isuse = "+str(A34970A.isUse)+"\n")
         self.E3640A.output(True)
         
         scr = open(os.path.join(self.scrfilename.get_value()), 'r')
         script = scr.read()
         scr.close()
-# ###        self.make_list(script)
-# ###        self.perse_list(self.commandList,self.argumentList,self.logfile)
-#        self.logfile.write(str(self._eof(0)))
         self.perse(script,self.logfile)
-#        for line in script.split('\n'):
-#            if self.cypress==0:  self.i2c  = usbio.usbio.I2C(self.cypress, 0x90)
-#            
-#            for words in line.split('//')[0].split(','):
-#                word=["".join(words.split())]
-#                for command in word:
-#                    time.sleep(0.1)
-#                    command=command.upper()
-#                    if command.split()==[]:continue
-#                    for comd, func in self.commandset.iteritems():
-#                        read=command.split(comd)
-#                        if(read[0])=='':
-#                            try:
-#                                execute=self.commandset[comd][0](read[1])
-#                            except:
-#                                execute=-1
-#                                npyscreen.notify_confirm(str(comd)+": "+str(sys.exc_info()[1]),title="SUSPEND",editw=1)
-#
-#                            self.logfile.write('\n')
-#                            if execute==-1:break
-#                    else: continue
-#                    break
-#                    
-#                else:
-#                    continue
-#                break
-#            else:
-#                continue
-#            break
-
-#        self.logfile.write( 'eof 2')
         todaydetail = datetime.datetime.today()
         self.outfile.write(todaydetail.strftime("%H.%M.%S")+" finished\n")
         self.outfile.close()
@@ -316,9 +202,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.Chamber.disconnect(lib)
         self.A34401A.disconnect(lib)
         self.A34970A.disconnect(lib)
-#        self.shellResponse("All done.")
-#        self.display()
-#        time.sleep(2)
         self.exit_application()
 
     def _eof(self,dummy=-1):
@@ -353,27 +236,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("TEMP"+str(temp))
         else:
             self.__temp(temp)
-#            self.processing.value="TEMP"+str(temp)
-#            self.logfile.write( 'temperature set: '+temp+' oC\n')
-#            self.shellResponse( 'temperature set: '+temp+' oC')
-#            self.Ttarget.value=str(temp)+" oC"
-#            self.shellResponse( self.Chamber.setTemp(temp))
-#            time.sleep(10)
-#            i=0
-#            while 1:#release code
-#                i+=1#release code
-#                current,target,absolute,hoge = self.Chamber.getTemp()
-#                diff=abs(float(current)-float(target))
-#                self.logfile.write ( current+","+target+","+absolute+","+hoge+","+str(diff)+"\n")
-#                self.Tcurrent.value="    "+str(target)+" oC"
-#                self.shellResponse ( str(i)+",\t current="+current+",\t target="+target+",\t limit="+absolute+","+hoge+",\t "+str(diff))
-#                if diff < 0.2:
-#                    break
-#                time.sleep(10)#release code
-#    
-#            self.logfile.write( 'reached target')
-#            self.shellResponse( 'reached target')
-#            self.outfile.write(temp+"oC\n")
         return 0
 
     def __sample(self,dummy=-1):
@@ -390,25 +252,17 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("SAMPLE")
         else:
             self.__sample(dummy)
-#            self.processing.value="SAMPLE"
-#            self.logfile.write( 'sample triggered')
-#            self.shellResponse( 'sample triggered')
-#            current,target,absolute,hoge = self.Chamber.getTemp()
-#            read=",,,"+current+","+str( self.E3640A.read())+","+str( self.A34401A.sample())+","+str( self.A34970A.sample())
-#            self.outfile.write(read+"\n")
         return 0
 
     def __suspend(self,dummy=-1):
         self.logfile.write( 'suspend triggered->')
         self.shellResponse( 'suspend triggered')
 
-#        self.isSuspend=True
         self.parentApp.change_form("SUB")
         npyscreen.notify_confirm("\n\t\t-=-=-=-SUSPEND-=-=-=-\n"+\
             "I would like more flexible popup which runs temp check in buckground but for now this is the solution as this works anyway..."
             ,title="SUSPEND",editw=1)
-#        self.isSuspend=False
-        
+
         self.logfile.write( 'popup end')
         self.shellResponse( 'return from popup')
         return 0
@@ -418,16 +272,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("SUSPEND")
         else:
             self.__suspend(dummy)
-#            self.logfile.write( 'suspend triggered->')
-#            self.shellResponse( 'suspend triggered')
-#    
-#            self.parentApp.change_form("SUB")
-#            npyscreen.notify_confirm("\n\t\t-=-=-=-SUSPEND-=-=-=-\n"+\
-#                "I would like more flexible popup which runs temp check in buckground but for now this is the solution as this works anyway..."
-#                ,title="SUSPEND",editw=1)
-#            
-#            self.logfile.write( 'popup end')
-#            self.shellResponse( 'return from popup')
         return 0
     
     def __volt(self,volt=3.0):
@@ -443,11 +287,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("VOLT"+str(volt))
         else:
             self.__volt(volt)
-#            self.processing.value="VOLT"+str(volt)
-#            self.logfile.write( 'voltage set: '+volt+' V')
-#            self.shellResponse( 'voltage set: '+volt+' V')
-#            self.outfile.write(volt+'V\n')
-#            self.E3640A.SetVoltage(volt)
         return 0
         
     def __delay(self,delay=1):
@@ -464,12 +303,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("DELY"+str(delay))
         else:
             self.__delay(delay)
-#            self.processing.value="DELY"+str(delay)
-#            self.shellResponse( 'wait for: '+delay+' minutes')
-#            for i in range(6 * int(delay)):
-#               current,target,absolute,hoge = self.Chamber.getTemp()
-#               self.shellResponse(str(i)+","+current+","+target+","+absolute+","+hoge)
-#               time.sleep(10)
         return 0
     
     def _kikusui(self,current=0.001):
@@ -491,12 +324,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("BASE"+str(baseaddr))
         else:
             self.__base(baseaddr)
-#            self.processing.value="BASE"+str(baseaddr)
-#            self.cypressbase=baseaddr
-#            self.logfile.write( 'i2c slave address set: 0x'+baseaddr)
-#            self.shellResponse( 'i2c slave address set: 0x'+baseaddr)
-#            self.i2c = usbio.usbio.I2C(self.cypress, baseaddr)
-#            self.outfile.write("SLAVE = 0x"+baseaddr+" (8)\n")
         return 0
 
     def __register(self,argument):
@@ -508,8 +335,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shellResponse( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
         if self.cypress==-99 :pass
         else:
-#            self.i2c=False
-#            self.__base(self.cypressbase)
             self.i2c.write_register( i2creg, i2cdata )
         self.outfile.write( 'reg%02Xh = 0x%02X\n' %( i2creg ,i2cdata ))
         return 0
@@ -519,24 +344,12 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("REG"+str(argument))
         else:
             self.__register(argument)
-#            self.processing.value="REG"+str(argument)
-#            i2creg,i2cdata=argument.split('=')
-#            i2creg= int(i2creg ,16)
-#            i2cdata= int(i2cdata ,16)
-#            self.logfile.write( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
-#            self.shellResponse( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
-#            if self.cypress==-99 :pass
-#            else:
-#                self._base(self.cypressbase)
-#                self.i2c.write_register( i2creg, i2cdata )
-#            self.outfile.write( 'reg%02Xh = 0x%02X\n' %( i2creg ,i2cdata ))
         return 0
         
     def __ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
         self.processing.value="UBASE"+str(argument)
         ulichan,ulibase= argument.split('=')
         channels=ulichan.split('+')
-#        ulichan= int(ulichan)
         if len(channels)>1:
             ulichan = [channels[0], channels[1]]
         else:
@@ -557,23 +370,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("UBASE"+str(argument))
         else:
             self.__ulibase(argument)
-#            ulichan,ulibase= argument.split('=')
-#            channels=ulichan.split('+')
-#   #           ulichan= int(ulichan)
-#            if len(channels)>1:
-#                ulichan = [channels[0], channels[1]]
-#            else:
-#                ulichan = [channels[0]]
-#            
-#            ulibase= int(ulibase, 16)
-#            for f in ulichan:
-#                if self.uli2c[int(f)]==False:
-#                    pass
-#                else:
-#                    self.uli2c[int(f)]= uli.I2C( 0, ulibase, int(f))#0x48/7bit=0x90/8bit
-#                self.outfile.write("SLAVE= 0x%02X,CH= %d (8bit)\n" %(ulibase, int(f)))
-#                self.shellResponse( 'i2c slave address set: 0x%02X of channel %d' %(ulibase, int(f)) )
-#                self.logfile.write( 'i2c slave address set: 0x%02X of channel %d\n' %(ulibase, int(f)))
         return 0
         
     def __uliregister(self,argument):#UREGx[+y]:aa=bb -> channel=x[and y],reg=aa,data=bb
@@ -603,25 +399,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("UREG"+str(argument))
         else:
             self.__uliregister(argument)
-#            self.processing.value="UREG"+str(argument)
-#            ulichan,i2cdata=argument.split(':')
-#            ulireg,ulidata=i2cdata.split('=')
-#            channels=ulichan.split('+')
-##             self.logfile.write( str(channels)+'\n')
-#            if len(channels)>1:
-#                ulichan=[channels[0],channels[1]]
-#            else:
-#                ulichan=[channels[0]]
-#            ulireg= int(ulireg ,16)
-#            ulidata= int(ulidata ,16)
-#            for f in ulichan:
-#                if self.uli2c[int(f)]==False:
-#                    pass
-#                else:
-#                    self.uli2c[int(f)].write_register( ulireg, ulidata )
-#                self.outfile.write( 'channel %d,reg%02Xh =, 0x%02X\n' %( int(f), ulireg, ulidata ))
-#                self.shellResponse( 'channel = %d, reg address = 0x%02X, data = 0x%02X'     %( int(f), ulireg, ulidata ))
-#                self.logfile.write( 'channel = %d, reg address = 0x%02X, data = 0x%02X\n'   %( int(f), ulireg, ulidata ))
         return 0
 
     def __chanset(self,channels):
@@ -636,10 +413,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.lpContain.append("CHAN"+str(channels))
         else:
             self.__chanset(channels)
-#            self.processing.value="CHAN"+str(channels)
-#            self.logfile.write( 'set channels(@'+channels.replace('+',',')+')')
-#            self.shellResponse( 'set channels(@'+channels.replace('+',',')+')')
-#            self.A34970A.setChannel('(@'+channels.replace('+',',')+')')
         return 0
 
     def _for(self,argument=1):
@@ -652,14 +425,9 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         for var[0] in lst:
             self.logfile.write( str(var[1])+str(var[0]))
             self.lpHeader.append(str(var[1])+str(var[0]))
-#            perser.perse(str(var[2])+str(var[1]),logfile)
-#        print 'repeat for '+arguments+' :'
         return 0
 
     def _loop(self,dummy=-1):
-#        global perser,logfile
-#        self.logfile.write(perser.lpHeader)
-#        self.logfile.write(perser.lpContain)
         if (self.isInLoop!=[]):#==True):
             self.isInLoop.pop()
             for head in self.lpHeader:
@@ -668,17 +436,12 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                     self.perse(commd,self.logfile)
                 
             self.logfile.write( 'end of loop')
-#        print self.isInLoop
-
-#        print 'loop'
         return 0
     
 
 if __name__ == '__main__':
-#    main()
     TC = TempCtrl()
     TC.run()
     sys.stdout = sys.__stdout__
     raw_input("\t -------- measurement finished (Enter key to exit) --------\n\n\n\n\n\n\n\n\n\n\n")
-#    print psu_id
-    
+
