@@ -160,7 +160,6 @@ class sourcemeter(object):
 
             elif (mode == 'source'):
                 if (current != 'auto'):
-#                    self.SMU.write(textwrap.dedent ('''
                     self.SMU.write(":SOUR:FUNC CURR")
                     self.SMU.write(":SOUR:CURR:MODE FIX")
                     self.SMU.write(":SOUR:CURR:RANG %f"%(current) )
