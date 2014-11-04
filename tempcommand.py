@@ -13,7 +13,7 @@ class tempcommand():
     def __init__(self):
         self.commandset={}
     
-    def perse(self,script,logfile):
+    def parse(self,script,logfile):
         execute=-1
         for line in script.split('\n'):
             for words in line.split('//')[0].split(','):
@@ -72,7 +72,7 @@ class tempcommand():
             
         return True
         
-    def perse_list(self,comlist,arglist,logfile):
+    def parse_list(self,comlist,arglist,logfile):
         execute=-1
         cnt=0
         isincludeloop=True
@@ -190,61 +190,61 @@ if __name__ == '__main__':
         return 0
 
     def _for(times=1):
-        global perser,logfile
-        perser.isInLoop.append(True)
+        global parser,logfile
+        parser.isInLoop.append(True)
         var=times.split(";")
         lst=var[0].split("+")
         for var[0] in lst:
             print str(var[1])+str(var[0])
-            perser.lpHeader.append(str(var[1])+str(var[0]))
+            parser.lpHeader.append(str(var[1])+str(var[0]))
         return 0
 
     def _loop(dummy=-1):
-        global perser,logfile
-        print perser.lpHeader
-        print perser.lpContain
-        if (perser.isInLoop[0]==True):
-            perser.isInLoop.pop(0)
-            for head in perser.lpHeader:
-                perser.perse(head,logfile)
-                for commd in perser.lpContain:
-                    perser.perse(commd,logfile)
+        global parser,logfile
+        print parser.lpHeader
+        print parser.lpContain
+        if (parser.isInLoop[0]==True):
+            parser.isInLoop.pop(0)
+            for head in parser.lpHeader:
+                parser.parse(head,logfile)
+                for commd in parser.lpContain:
+                    parser.parse(commd,logfile)
                 
             print 'end of loop'
         return 0
 
     def _sample(dummy=-1):
-        global perser
-        if (perser.isInLoop!=[]):
-            perser.lpContain.append("SAMPLE")
+        global parser
+        if (parser.isInLoop!=[]):
+            parser.lpContain.append("SAMPLE")
             print 'Sample in loop'
         else:
             print 'Sample'
         return 0
 
     def _register(argument):
-        global perser
+        global parser
         i2creg,i2cdata=argument.split('=')
-        if (perser.isInLoop!=[]):
-            perser.lpContain.append("REG"+argument)
+        if (parser.isInLoop!=[]):
+            parser.lpContain.append("REG"+argument)
             print 'reg address = 0x%03X, data = 0x%02X in inner loop' %( int(i2creg,16),int(i2cdata,16) )
         else:
             print 'reg address = 0x%03X, data = 0x%02X' %( int(i2creg,16),int(i2cdata,16) )
         return 0
         
     def _chanset(channels):
-        global perser
-        if (perser.isInLoop!=[]):
-            perser.lpContain.append("CHAN"+channels)
+        global parser
+        if (parser.isInLoop!=[]):
+            parser.lpContain.append("CHAN"+channels)
             print 'set channels @'+channels
         else:
             print 'set channels @'+channels
         return 0
         
     def _delay(_wait=1):
-        global perser
-        if (perser.isInLoop!=[]):
-            perser.lpContain.append("DELY"+_wait)
+        global parser
+        if (parser.isInLoop!=[]):
+            parser.lpContain.append("DELY"+_wait)
             print 'wait for: '+_wait+' minutes'
         else:
             print 'wait for: '+_wait+' minutes'
@@ -255,19 +255,19 @@ if __name__ == '__main__':
         return 0
 
     try:
-        perser=tempcommand.tempcommand()
+        parser=tempcommand.tempcommand()
         logfile=open("hoge.log",'a')
-        perser.add_command("TEMP",_temp)
-        perser.add_command("EOF",perser._eof)
-        perser.add_command("FOR",_for)
-        perser.add_command("SAMPLE",_sample)
-        perser.add_command("LOOP",_loop)
-        perser.add_command("REG",_register)
-        perser.add_command("CHAN",_chanset)
-        perser.add_command("DELY",_delay)
-        print perser.commandList
-        print perser.argumentList
-        perser.make_list(
+        parser.add_command("TEMP",_temp)
+        parser.add_command("EOF",parser._eof)
+        parser.add_command("FOR",_for)
+        parser.add_command("SAMPLE",_sample)
+        parser.add_command("LOOP",_loop)
+        parser.add_command("REG",_register)
+        parser.add_command("CHAN",_chanset)
+        parser.add_command("DELY",_delay)
+        print parser.commandList
+        print parser.argumentList
+        parser.make_list(
             """chan105
             reg00=ff
             for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
@@ -284,13 +284,13 @@ if __name__ == '__main__':
             EOF
             """
         )
-        print perser.commandList
-        reverse=perser.commandList[:]
+        print parser.commandList
+        reverse=parser.commandList[:]
         reverse.reverse()
         print reverse
-        hitp=perser.commandList.index('FOR')
+        hitp=parser.commandList.index('FOR')
         hitn=reverse.index('LOOP')
-        perser.perse(
+        parser.parse(
             """
             for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
                 dely1
