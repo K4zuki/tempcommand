@@ -81,7 +81,7 @@ class tempcommand():
 #4. pop the LOOP
 #5. break the loop
 
-    def find_loop(self,c_list,a_list):
+    def break_loop(self,c_list,a_list):
         c_temp=c_list[:]
         F_index = []
         L_index = []
@@ -114,7 +114,7 @@ class tempcommand():
             result=result.pop()
             print "_result_",result
             print "_loop_",c_list[result[0]:result[1]],a_list[result[0]:result[1]]
-            c_result,a_result = self.break_loop( c_list[result[0]:result[1]],
+            c_result,a_result = self._break_loop( c_list[result[0]:result[1]],
                                     a_list[result[0]:result[1]])
             for hoge in range(len(c_list[result[0]:result[1]+1])):
                 c_list.pop(result[0])
@@ -130,7 +130,7 @@ class tempcommand():
         return c_list,a_list
         pass
         
-    def break_loop(self, c_list, a_list):
+    def _break_loop(self, c_list, a_list):
         c_result=[]
         a_result=[]
         var=a_list[0].split(";")
@@ -378,7 +378,7 @@ if __name__ == '__main__':
             """
         )
 #        print parser.commandList
-        parser.find_loop(parser.commandList,parser.argumentList)
+        parser.break_loop(parser.commandList,parser.argumentList)
         parser.parse_list(parser.commandList,parser.argumentList,logfile)
 #        raw_input("hoge")
 #        reverse=parser.commandList[:]
