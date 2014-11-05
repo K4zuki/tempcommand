@@ -75,28 +75,41 @@ class tempcommand():
 
         return True
         
-
+#1. pop biggest FOR
+#2. scan LOOP from bigger number
+#3. (LOOP>FOR) && minimum(abs(LOOP-FOR)) is the best LOOP
+#4. pop the LOOP
     def find_loop(self,c_list,a_list):
         c_temp=c_list[:]
         F_index = []
         L_index = []
-        print c_temp
+        result=[]
+        print c_temp,result
         for hoge in range(len(c_list)):
             if c_list[hoge] == "FOR":
                 F_index.append(hoge)
             elif c_list[hoge] == "LOOP":
                 L_index.append(hoge)
-        F_index.reverse()
         print F_index,L_index
         i=0
-        for hoge in F_index:
-            if(hoge>L_index[i]):
-                i+=1
-#                print hoge,L_index[i],c_temp[hoge:L_index[i]]
-#                continue
-            else:
-                print hoge,L_index[i],c_temp[hoge:L_index[i]]
-#                continue
+        while(len(F_index)>0):
+            hoge=F_index.pop()
+            i=0
+            print hoge,
+            for foo in range(len(L_index)):
+                if L_index[foo]>hoge:
+                    break
+                    
+            foo=L_index.pop(foo)
+            print foo
+            result.append([hoge,foo])
+        result.reverse()
+        print result
+        for i in range(len(result)):
+            print c_list[result[i][0]:result[i][1]]
+        pass
+        
+    def break_loop(self, c_list):
         pass
         
     def command_execute(self,commandlist,argumentlist):
@@ -304,9 +317,9 @@ if __name__ == '__main__':
         print "_command_",parser.commandList
         print "_argument_",parser.argumentList
         parser.make_list(
-            """chan105
+            """
+            chan105
             reg00=ff
-//            for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
             for -40+0+100; TEMP
                 dely1
                 sample
@@ -315,11 +328,8 @@ if __name__ == '__main__':
                 LOOP
                 for 0c+0e; reg00=
                     sample
-//                    sample
-//                    sample
                 LOOP
                 suspend
-//                temp20
             LOOP
             suspend
             sample
@@ -327,23 +337,23 @@ if __name__ == '__main__':
             """
         )
 #        print parser.commandList
-        parser.break_loop(parser.commandList,parser.argumentList)
-        raw_input("hoge")
+        parser.find_loop(parser.commandList,parser.argumentList)
+#        raw_input("hoge")
         reverse=parser.commandList[:]
         reverse.reverse()
-        print reverse
+#        print reverse
         hitp=parser.commandList.index('FOR')
         hitn=reverse.index('LOOP')
-        parser.parse(
-            """
-            for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
-                dely1
-                chan105,reg00=ff,SAMPLE
-                chan106,regff=00,SAMPLE
-            loop
-            EOF
-            """,
-            logfile)
+#        parser.parse(
+#            """
+#            for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
+#                dely1
+#                chan105,reg00=ff,SAMPLE
+#                chan106,regff=00,SAMPLE
+#            loop
+#            EOF
+#            """,
+#            logfile)
     except:
         raw_input(str(sys.exc_info()[1]))
     else:
