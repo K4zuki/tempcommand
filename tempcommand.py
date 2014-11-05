@@ -88,44 +88,43 @@ class tempcommand():
         result=[]
         c_result=[]
         a_result=[]
-#        print c_temp,result
         
         if(c_list.count("FOR")>0):
-            print "GTG"
+#            print "GTG"
             for hoge in range(len(c_list)):
                 if c_list[hoge] == "FOR":
                     F_index.append(hoge)
                 elif c_list[hoge] == "LOOP":
                     L_index.append(hoge)
-            print "_index_",F_index,L_index
+#            print "_index_",F_index,L_index
             i=0
             while(len(F_index)>0):
                 hoge=F_index.pop()
                 i=0
-                print "_for_",hoge,"_loop_",
+#                print "_for_",hoge,"_loop_",
                 for foo in range(len(L_index)):
                     if L_index[foo]>hoge:
                         break
                         
                 foo=L_index.pop(foo)
-                print foo
+#                print foo
                 result.append([hoge,foo])
             result.reverse()
             result=result.pop()
-            print "_result_",result
-            print "_loop_",c_list[result[0]:result[1]],a_list[result[0]:result[1]]
+#            print "_result_",result
+#            print "_loop_",c_list[result[0]:result[1]],a_list[result[0]:result[1]]
             c_result,a_result = self._break_loop( c_list[result[0]:result[1]],
                                     a_list[result[0]:result[1]])
             for hoge in range(len(c_list[result[0]:result[1]+1])):
                 c_list.pop(result[0])
                 a_list.pop(result[0])
-                print hoge
+#                print hoge
             for hoge in range(len(c_result)):
                 c_list.insert(result[0],c_result.pop())
                 a_list.insert(result[0],a_result.pop())
-            print "_returnC_",c_list
-            print "_returnA_",a_list
-            self.find_loop(c_list,a_list)
+#            print "_returnC_",c_list
+#            print "_returnA_",a_list
+            self.break_loop(c_list,a_list)
 
         return c_list,a_list
         pass
@@ -353,8 +352,8 @@ if __name__ == '__main__':
         parser.add_command("REG",_register)
         parser.add_command("CHAN",_chanset)
         parser.add_command("DELY",_delay)
-        print "_command_",parser.commandList
-        print "_argument_",parser.argumentList
+#        print "_command_",parser.commandList
+#        print "_argument_",parser.argumentList
         parser.make_list(
             """
             chan105
