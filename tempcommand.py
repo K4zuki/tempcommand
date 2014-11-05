@@ -70,60 +70,33 @@ class tempcommand():
                 continue
             break
             
+        if(self.commandList.count("FOR")!=self.commandList.count("LOOP")):
+            print "error",commandlist.count("FOR"),argumentlist.count("LOOP")
+
         return True
         
 
-    def break_loop(self,commandlist,argumentlist):
-        c_reverse=commandlist[:]
-        c_reverse.reverse()
-        a_reverse=argumentlist[:]
-        a_reverse.reverse()
-        c_loop=[]
-        a_loop=[]
-        c_temp=[]
-        a_temp=[]
-        c_result=[]
-        a_result=[]
-        c_hit=0
-        a_hit=0
-        if(commandlist.count("FOR")!=commandlist.count("LOOP")):
-#            raise
-            print "error",commandlist.count("FOR"),argumentlist.count("LOOP")
-        else:
-            if ("FOR" in commandlist):
-                c_hit=commandlist.index('FOR')
-                a_hit=c_reverse.index('LOOP')
-                c_loop=commandlist[c_hit+1:-1*(a_hit+1)]
-                a_loop=argumentlist[c_hit+1:-1*(a_hit+1)]
-                
-                var=argumentlist[c_hit].split(";")
-                print "_range_",range(c_hit,len(commandlist)-1*(a_hit),1)
-                for i in range(c_hit,len(commandlist)-1*(a_hit),1):
-                    commandlist.pop(c_hit)
-                    argumentlist.pop(c_hit)
-                print commandlist,argumentlist
-                print commandlist[c_hit],argumentlist[c_hit]
-                lst=var[0].split("+")
-                for var[0] in lst:
-    #                print str(var[1])+str(var[0])
-                    for comd, func in self.commandset.iteritems():
-                        read=(str(var[1])+str(var[0])).split(comd)
-                        if(read[0])=='':
-                            try:
-                                c_temp.append(comd)
-                                a_temp.append(read[1])
-                            except:
-                                npyscreen.notify_confirm(str(comd)+": "+str(sys.exc_info()[1]),title="SUSPEND",editw=1)
-    
-                print "_temp_",c_temp,a_temp
-                print "_loop_",c_loop,a_loop
-                c_result,a_result=self.break_loop(c_loop,a_loop)
-                print "_result_",c_result,a_result
-                pass
+    def find_loop(self,c_list,a_list):
+        c_temp=c_list[:]
+        F_index = []
+        L_index = []
+        print c_temp
+        for hoge in range(len(c_list)):
+            if c_list[hoge] == "FOR":
+                F_index.append(hoge)
+            elif c_list[hoge] == "LOOP":
+                L_index.append(hoge)
+        F_index.reverse()
+        print F_index,L_index
+        i=0
+        for hoge in F_index:
+            if(hoge>L_index[i]):
+                i+=1
+#                print hoge,L_index[i],c_temp[hoge:L_index[i]]
+#                continue
             else:
-                c_result=commandlist
-                a_result=argumentlist
-        return c_result,a_result
+                print hoge,L_index[i],c_temp[hoge:L_index[i]]
+#                continue
         pass
         
     def command_execute(self,commandlist,argumentlist):
@@ -328,30 +301,33 @@ if __name__ == '__main__':
         parser.add_command("REG",_register)
         parser.add_command("CHAN",_chanset)
         parser.add_command("DELY",_delay)
-        print parser.commandList
-        print parser.argumentList
+        print "_command_",parser.commandList
+        print "_argument_",parser.argumentList
         parser.make_list(
             """chan105
             reg00=ff
-            for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
+//            for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
+            for -40+0+100; TEMP
                 dely1
                 sample
-                for 00+02+04+06+08+0a+0c+0e; reg00=
+                for 00+02+04; reg00=
                     sample
                 LOOP
-                for 00+02+04+06+08+0a+0c+0e; reg00=
+                for 0c+0e; reg00=
                     sample
+//                    sample
+//                    sample
                 LOOP
                 suspend
-                temp20
+//                temp20
             LOOP
             suspend
             sample
             EOF
             """
         )
-        print parser.commandList
-        print parser.break_loop(parser.commandList,parser.argumentList)
+#        print parser.commandList
+        parser.break_loop(parser.commandList,parser.argumentList)
         raw_input("hoge")
         reverse=parser.commandList[:]
         reverse.reverse()
