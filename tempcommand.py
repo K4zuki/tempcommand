@@ -79,37 +79,76 @@ class tempcommand():
 #2. scan LOOP from bigger number
 #3. (LOOP>FOR) && minimum(abs(LOOP-FOR)) is the best LOOP
 #4. pop the LOOP
+#5. break the loop
+
     def find_loop(self,c_list,a_list):
         c_temp=c_list[:]
         F_index = []
         L_index = []
         result=[]
-        print c_temp,result
-        for hoge in range(len(c_list)):
-            if c_list[hoge] == "FOR":
-                F_index.append(hoge)
-            elif c_list[hoge] == "LOOP":
-                L_index.append(hoge)
-        print F_index,L_index
-        i=0
-        while(len(F_index)>0):
-            hoge=F_index.pop()
+        c_result=[]
+        a_result=[]
+#        print c_temp,result
+        
+        if(c_list.count("FOR")>0):
+            print "GTG"
+            for hoge in range(len(c_list)):
+                if c_list[hoge] == "FOR":
+                    F_index.append(hoge)
+                elif c_list[hoge] == "LOOP":
+                    L_index.append(hoge)
+            print "_index_",F_index,L_index
             i=0
-            print hoge,
-            for foo in range(len(L_index)):
-                if L_index[foo]>hoge:
-                    break
-                    
-            foo=L_index.pop(foo)
-            print foo
-            result.append([hoge,foo])
-        result.reverse()
-        print result
-        for i in range(len(result)):
-            print c_list[result[i][0]:result[i][1]]
+            while(len(F_index)>0):
+                hoge=F_index.pop()
+                i=0
+                print "_for_",hoge,"_loop_",
+                for foo in range(len(L_index)):
+                    if L_index[foo]>hoge:
+                        break
+                        
+                foo=L_index.pop(foo)
+                print foo
+                result.append([hoge,foo])
+            result.reverse()
+            result=result.pop()
+            print "_result_",result
+            print "_loop_",c_list[result[0]:result[1]],a_list[result[0]:result[1]]
+            c_result,a_result = self.break_loop( c_list[result[0]:result[1]],
+                                    a_list[result[0]:result[1]])
+            for hoge in range(len(c_list[result[0]:result[1]+1])):
+                c_list.pop(result[0])
+                a_list.pop(result[0])
+                print hoge
+            for hoge in range(len(c_result)):
+                c_list.insert(result[0],c_result.pop())
+                a_list.insert(result[0],a_result.pop())
+            print "_returnC_",c_list
+            print "_returnA_",a_list
+            self.find_loop(c_list,a_list)
+
+        return c_list,a_list
         pass
         
-    def break_loop(self, c_list):
+    def break_loop(self, c_list, a_list):
+        c_result=[]
+        a_result=[]
+        var=a_list[0].split(";")
+        lst=var[0].split("+")
+        for var[0] in lst:
+#            print str(var[1])+str(var[0])
+            for comd, func in self.commandset.iteritems():
+                read=(str(var[1])+str(var[0])).split(comd)
+                if(read[0])=='':
+                    c_result.append(comd)
+                    a_result.append(read[1])
+                    for hoge in c_list[1:]:
+                        c_result.append(hoge)
+                    for foo in a_list[1:]:
+                        a_result.append(foo)
+
+#        print c_result,a_result
+        return (c_result,a_result)
         pass
         
     def command_execute(self,commandlist,argumentlist):
@@ -124,18 +163,18 @@ class tempcommand():
     def parse_list(self,comlist,arglist,logfile):
         execute=-1
         cnt=0
-        isincludeloop=True
-        reverse=comlist[:]
-        reverse.reverse()
-        lpcom=[]
-        lparg=[]
-        try:
-            hitp=comlist.index('FOR')
-            hitn=reverse.index('LOOP')
-            lpcom=commandlist[hitp+1:-1*(hitn+1)]
-            lparg=argumentList[hitp+1:-1*(hitn+1)]
-        except:
-            isincludeloop=False
+#        isincludeloop=True
+#        reverse=comlist[:]
+#        reverse.reverse()
+#        lpcom=[]
+#        lparg=[]
+#        try:
+#            hitp=comlist.index('FOR')
+#            hitn=reverse.index('LOOP')
+#            lpcom=commandlist[hitp+1:-1*(hitn+1)]
+#            lparg=argumentList[hitp+1:-1*(hitn+1)]
+#        except:
+#            isincludeloop=False
 
         for command in comlist:
             try:
@@ -327,7 +366,9 @@ if __name__ == '__main__':
                     sample
                 LOOP
                 for 0c+0e; reg00=
-                    sample
+                    for 00+02+04; reg00=
+                        sample
+                    LOOP
                 LOOP
                 suspend
             LOOP
@@ -338,12 +379,13 @@ if __name__ == '__main__':
         )
 #        print parser.commandList
         parser.find_loop(parser.commandList,parser.argumentList)
+        parser.parse_list(parser.commandList,parser.argumentList,logfile)
 #        raw_input("hoge")
-        reverse=parser.commandList[:]
-        reverse.reverse()
+#        reverse=parser.commandList[:]
+#        reverse.reverse()
 #        print reverse
-        hitp=parser.commandList.index('FOR')
-        hitn=reverse.index('LOOP')
+#        hitp=parser.commandList.index('FOR')
+#        hitn=reverse.index('LOOP')
 #        parser.parse(
 #            """
 #            for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
