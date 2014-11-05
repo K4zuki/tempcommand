@@ -72,6 +72,69 @@ class tempcommand():
             
         return True
         
+
+    def break_loop(self,commandlist,argumentlist):
+        c_reverse=commandlist[:]
+        c_reverse.reverse()
+        a_reverse=argumentlist[:]
+        a_reverse.reverse()
+        c_loop=[]
+        a_loop=[]
+        c_temp=[]
+        a_temp=[]
+        c_result=[]
+        a_result=[]
+        c_hit=0
+        a_hit=0
+        if(commandlist.count("FOR")!=commandlist.count("LOOP")):
+#            raise
+            print "error",commandlist.count("FOR"),argumentlist.count("LOOP")
+        else:
+            if ("FOR" in commandlist):
+                c_hit=commandlist.index('FOR')
+                a_hit=c_reverse.index('LOOP')
+                c_loop=commandlist[c_hit+1:-1*(a_hit+1)]
+                a_loop=argumentlist[c_hit+1:-1*(a_hit+1)]
+                
+                var=argumentlist[c_hit].split(";")
+                print "_range_",range(c_hit,len(commandlist)-1*(a_hit),1)
+                for i in range(c_hit,len(commandlist)-1*(a_hit),1):
+                    commandlist.pop(c_hit)
+                    argumentlist.pop(c_hit)
+                print commandlist,argumentlist
+                print commandlist[c_hit],argumentlist[c_hit]
+                lst=var[0].split("+")
+                for var[0] in lst:
+    #                print str(var[1])+str(var[0])
+                    for comd, func in self.commandset.iteritems():
+                        read=(str(var[1])+str(var[0])).split(comd)
+                        if(read[0])=='':
+                            try:
+                                c_temp.append(comd)
+                                a_temp.append(read[1])
+                            except:
+                                npyscreen.notify_confirm(str(comd)+": "+str(sys.exc_info()[1]),title="SUSPEND",editw=1)
+    
+                print "_temp_",c_temp,a_temp
+                print "_loop_",c_loop,a_loop
+                c_result,a_result=self.break_loop(c_loop,a_loop)
+                print "_result_",c_result,a_result
+                pass
+            else:
+                c_result=commandlist
+                a_result=argumentlist
+        return c_result,a_result
+        pass
+        
+    def command_execute(self,commandlist,argumentlist):
+        execute=-1
+        for index in range(len(commandlist)):
+            try:
+                execute=self.commandset[commandlist[index]][0](argumentlist[index]) 
+            except:
+                pass
+        pass
+        
     def parse_list(self,comlist,arglist,logfile):
         execute=-1
         cnt=0
@@ -83,7 +146,7 @@ class tempcommand():
         try:
             hitp=comlist.index('FOR')
             hitn=reverse.index('LOOP')
-            lpcom=commandList[hitp+1:-1*(hitn+1)]
+            lpcom=commandlist[hitp+1:-1*(hitn+1)]
             lparg=argumentList[hitp+1:-1*(hitn+1)]
         except:
             isincludeloop=False
@@ -276,6 +339,9 @@ if __name__ == '__main__':
                 for 00+02+04+06+08+0a+0c+0e; reg00=
                     sample
                 LOOP
+                for 00+02+04+06+08+0a+0c+0e; reg00=
+                    sample
+                LOOP
                 suspend
                 temp20
             LOOP
@@ -285,6 +351,8 @@ if __name__ == '__main__':
             """
         )
         print parser.commandList
+        print parser.break_loop(parser.commandList,parser.argumentList)
+        raw_input("hoge")
         reverse=parser.commandList[:]
         reverse.reverse()
         print reverse
