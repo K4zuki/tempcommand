@@ -51,7 +51,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("LOOP",    self._loop)
         
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-            value="W:\\Tokyo\\Data\\Design Center\\Nori2\\Evaluation\\new2.txt")
+            value="")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24")
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16")
         self.isctrl_chamber = self.add(npyscreen.CheckBox, value = False, name="Control Temp")
