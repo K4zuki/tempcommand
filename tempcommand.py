@@ -14,9 +14,17 @@ class tempcommand():
         self.commandset={}
     
     def parse(self,script,logfile):
+        count_eof=0
         self.make_list(script)
-        self.break_loop(self.commandList,self.argumentList)
-        self.parse_list(self.commandList,self.argumentList,logfile)
+        if(self.commandList.count("EOF")>1):
+            count_eof=self.commandList.index("EOF")
+            self.commandList=self.commandList[:count_eof]
+            self.argumentList=self.argumentList[:count_eof]
+        if(self.commandList.count("FOR")!=self.commandList.count("LOOP")):
+            print "error",commandlist.count("FOR"),argumentlist.count("LOOP")
+        else:
+            self.break_loop(self.commandList,self.argumentList)
+            self.parse_list(self.commandList,self.argumentList,logfile)
 #        execute=-1
 #        for line in script.split('\n'):
 #            for words in line.split('//')[0].split(','):
