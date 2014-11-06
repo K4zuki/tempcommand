@@ -358,30 +358,30 @@ class dummy(object):
     def reset (self):
         pass
     
-    def sense_4W(self,on=False):
-        pass
+#    def sense_4W(self,on=False):
+#        pass
         
-    def set_v_limit (self, voltage, channel = 1):
+    def SetVoltageLimit (self, voltage, channel = 1):
         pass
 
-    def set_i_limit (self, current, channel = 1):
+    def SetCurrentLimit (self, current, channel = 1):
         pass
 
-    def set_v_range (self, voltage, channel = 1, mode = 'source'):
+    def SetVoltageRange (self, voltage, channel = 1, mode = 'source'):
         pass
 
-    def set_i_range (self, current, channel = 1, mode = 'source'):
+    def SetCurrentRange (self, current, channel = 1, mode = 'source'):
         pass
 
-    def read_v (self, samples = 1, channel = 1, avg_mode = 'MOV', filt = 'ON', nplc = 1):
+    def ReadVoltage (self, samples = 1, channel = 1, avg_mode = 'MOV', filt = 'ON', nplc = 1):
         return "dummy"
 
-    def read_i (self, samples = 1, channel = 1, avg_mode = 'MOV', filt = 'ON', nplc = 1):
+    def ReadCurrent (self, samples = 1, channel = 1, avg_mode = 'MOV', filt = 'ON', nplc = 1):
         return "dummy"
 
-    def set_v (self, voltage, channel = 1):
+    def SetVoltage (self, voltage, channel = 1):
         pass
 
-    def set_i (self, current, channel = 1):
+    def SetCurrent (self, current, channel = 1):
         pass
         
