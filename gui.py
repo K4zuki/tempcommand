@@ -214,6 +214,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 
     def _temp(self,temp=30):
         self.processing.value="TEMP"+str(temp)
+        self.Ttarget.value=str(temp)+" oC"
         self.logfile.write( 'temperature set: '+temp+' oC\n')
         self.shellResponse( 'temperature set: '+temp+' oC')
         self.shellResponse( self.Chamber.setTemp(temp))
@@ -222,6 +223,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         while 1:#release code
             i+=1#release code
             current,target,absolute,hoge = self.Chamber.getTemp()
+            self.Tcurrent.value="    "+str(current)+" oC    >>>"
             diff=abs(float(current)-float(target))
             self.logfile.write ( current+","+target+","+absolute+","+hoge+","+str(diff)+"\n")
             self.shellResponse ( str(i)+",\t current="+current+",\t target="+target+",\t limit="+absolute+","+hoge+",\t "+str(diff))
