@@ -14,34 +14,37 @@ class tempcommand():
         self.commandset={}
     
     def parse(self,script,logfile):
-        execute=-1
-        for line in script.split('\n'):
-            for words in line.split('//')[0].split(','):
-                word=["".join(words.split())]
-                for command in word:
-                    time.sleep(0.1)
-                    command=command.upper()
-                    if command.split()==[]:continue
-                    for comd, func in self.commandset.iteritems():
-                        read=command.split(comd)
-                        if(read[0])=='':
-                            try:
-                                execute=self.commandset[comd][0](read[1])
-                            except:
-                                npyscreen.notify_confirm(str(comd)+str(read[1])+": "+str(traceback.print_tb(sys.exc_info()[2],None,logfile)),title="SUSPEND",editw=1)
-
-                            logfile.write('\n')
-                            if execute==-1:break
-                    else: continue
-                    break
-                    
-                else:
-                    continue
-                break
-            else:
-                continue
-            break
-            
+        self.make_list(script)
+        self.break_loop(self.commandList,self.argumentList)
+        self.parse_list(self.commandList,self.argumentList,logfile)
+#        execute=-1
+#        for line in script.split('\n'):
+#            for words in line.split('//')[0].split(','):
+#                word=["".join(words.split())]
+#                for command in word:
+#                    time.sleep(0.1)
+#                    command=command.upper()
+#                    if command.split()==[]:continue
+#                    for comd, func in self.commandset.iteritems():
+#                        read=command.split(comd)
+#                        if(read[0])=='':
+#                            try:
+#                                execute=self.commandset[comd][0](read[1])
+#                            except:
+#                                npyscreen.notify_confirm(str(comd)+str(read[1])+": "+str(traceback.print_tb(sys.exc_info()[2],None,logfile)),title="SUSPEND",editw=1)
+#
+#                            logfile.write('\n')
+#                            if execute==-1:break
+#                    else: continue
+#                    break
+#                    
+#                else:
+#                    continue
+#                break
+#            else:
+#                continue
+#            break
+#            
         return True
 
     def make_list(self,script):
@@ -150,31 +153,18 @@ class tempcommand():
         return (c_result,a_result)
         pass
         
-    def command_execute(self,commandlist,argumentlist):
-        execute=-1
-        for index in range(len(commandlist)):
-            try:
-                execute=self.commandset[commandlist[index]][0](argumentlist[index]) 
-            except:
-                pass
-        pass
+#    def command_execute(self,commandlist,argumentlist):
+#        execute=-1
+#        for index in range(len(commandlist)):
+#            try:
+#                execute=self.commandset[commandlist[index]][0](argumentlist[index]) 
+#            except:
+#                pass
+#        pass
         
     def parse_list(self,comlist,arglist,logfile):
         execute=-1
         cnt=0
-#        isincludeloop=True
-#        reverse=comlist[:]
-#        reverse.reverse()
-#        lpcom=[]
-#        lparg=[]
-#        try:
-#            hitp=comlist.index('FOR')
-#            hitn=reverse.index('LOOP')
-#            lpcom=commandlist[hitp+1:-1*(hitn+1)]
-#            lparg=argumentList[hitp+1:-1*(hitn+1)]
-#        except:
-#            isincludeloop=False
-
         for command in comlist:
             try:
                 execute=self.commandset[command][0](arglist[cnt])
