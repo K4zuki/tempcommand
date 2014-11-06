@@ -191,7 +191,10 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         scr = open(os.path.join(self.scrfilename.get_value()), 'r')
         script = scr.read()
         scr.close()
-        self.parse(script,self.logfile)
+#        self.parse(script,self.logfile)
+        self.make_list(script)
+        self.break_loop(self.commandList,self.argumentList)
+        self.parse_list(self.commandList,self.argumentList,self.logfile)
         todaydetail = datetime.datetime.today()
         self.outfile.write(todaydetail.strftime("%H.%M.%S")+" finished\n")
         self.outfile.close()
@@ -416,7 +419,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         return 0
 
     def _for(self,argument=1):
-        self.isInLoop.append(True)
+#        self.isInLoop.append(True)
         self.logfile.write( str(self.isInLoop) )
         var=argument.split(";")
         self.logfile.write( str(var))
