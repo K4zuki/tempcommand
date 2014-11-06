@@ -191,10 +191,10 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         scr = open(os.path.join(self.scrfilename.get_value()), 'r')
         script = scr.read()
         scr.close()
-#        self.parse(script,self.logfile)
-        self.make_list(script)
-        self.break_loop(self.commandList,self.argumentList)
-        self.parse_list(self.commandList,self.argumentList,self.logfile)
+        self.parse(script,self.logfile)
+#        self.make_list(script)
+#        self.break_loop(self.commandList,self.argumentList)
+#        self.parse_list(self.commandList,self.argumentList,self.logfile)
         todaydetail = datetime.datetime.today()
         self.outfile.write(todaydetail.strftime("%H.%M.%S")+" finished\n")
         self.outfile.close()
@@ -212,7 +212,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.shellResponse('EndOfFile triggered')
         return -1
 
-    def __temp(self,temp=30):
+    def _temp(self,temp=30):
         self.processing.value="TEMP"+str(temp)
         self.logfile.write( 'temperature set: '+temp+' oC\n')
         self.shellResponse( 'temperature set: '+temp+' oC')
@@ -234,14 +234,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write(temp+"oC\n")
         return 0
 
-    def _temp(self,temp=30):
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("TEMP"+str(temp))
-        else:
-            self.__temp(temp)
-        return 0
+#    def _temp(self,temp=30):
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("TEMP"+str(temp))
+#        else:
+#            self.__temp(temp)
+#        return 0
 
-    def __sample(self,dummy=-1):
+    def _sample(self,dummy=-1):
         self.processing.value="SAMPLE"
         self.logfile.write( 'sample triggered')
         self.shellResponse( 'sample triggered')
@@ -250,14 +250,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write(read+"\n")
         return 0
 
-    def _sample(self,dummy=-1):
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("SAMPLE")
-        else:
-            self.__sample(dummy)
-        return 0
+#    def _sample(self,dummy=-1):
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("SAMPLE")
+#        else:
+#            self.__sample(dummy)
+#        return 0
 
-    def __suspend(self,dummy=-1):
+    def _suspend(self,dummy=-1):
         self.logfile.write( 'suspend triggered->')
         self.shellResponse( 'suspend triggered')
 
@@ -270,14 +270,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shellResponse( 'return from popup')
         return 0
 
-    def _suspend(self,dummy=-1):
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("SUSPEND")
-        else:
-            self.__suspend(dummy)
-        return 0
+#    def _suspend(self,dummy=-1):
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("SUSPEND")
+#        else:
+#            self.__suspend(dummy)
+#        return 0
     
-    def __volt(self,volt=3.0):
+    def _volt(self,volt=3.0):
         self.processing.value="VOLT"+str(volt)
         self.logfile.write( 'voltage set: '+volt+' V')
         self.shellResponse( 'voltage set: '+volt+' V')
@@ -285,14 +285,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.E3640A.SetVoltage(volt)
         return 0
 
-    def _volt(self,volt=3.0):
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("VOLT"+str(volt))
-        else:
-            self.__volt(volt)
-        return 0
+#    def _volt(self,volt=3.0):
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("VOLT"+str(volt))
+#        else:
+#            self.__volt(volt)
+#        return 0
         
-    def __delay(self,delay=1):
+    def _delay(self,delay=1):
         self.processing.value="DELY"+str(delay)
         self.shellResponse( 'wait for: '+delay+' minutes')
         for i in range(6 * int(delay)):
@@ -301,35 +301,35 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             time.sleep(10)
         return 0
 
-    def _delay(self,delay=1):
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("DELY"+str(delay))
-        else:
-            self.__delay(delay)
-        return 0
+#    def _delay(self,delay=1):
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("DELY"+str(delay))
+#        else:
+#            self.__delay(delay)
+#        return 0
     
     def _kikusui(self,current=0.001):
         self.logfile.write( 'current set: '+current+' A')
         self.shellResponse( 'current set: '+current+' A')
         return 0
     
-    def __base(self,baseaddr=0x90):
+    def _base(self,baseaddr=0x90):
         baseaddr=int(baseaddr)
         self.processing.value="BASE"+str(baseaddr)
         self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
         self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
         self.i2c = usbio.usbio.I2C(self.cypress, baseaddr)
-        self.outfile.write("SLAVE = 0x"+str(baseaddr)+" (8)\n")
+        self.outfile.write("SLAVE = 0x"+str(baseaddr)+",(8it)\n")
         return 0
    
-    def _base(self,baseaddr=0x90):
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("BASE"+str(baseaddr))
-        else:
-            self.__base(baseaddr)
-        return 0
+#    def _base(self,baseaddr=0x90):
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("BASE"+str(baseaddr))
+#        else:
+#            self.__base(baseaddr)
+#        return 0
 
-    def __register(self,argument):
+    def _register(self,argument):
         self.processing.value="REG"+str(argument)
         i2creg,i2cdata=argument.split('=')
         i2creg= int(i2creg ,16)
@@ -339,17 +339,17 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         if self.cypress==-99 :pass
         else:
             self.i2c.write_register( i2creg, i2cdata )
-        self.outfile.write( 'reg%02Xh = 0x%02X\n' %( i2creg ,i2cdata ))
+        self.outfile.write( ',reg%02Xh =, 0x%02X\n' %( i2creg ,i2cdata ))
         return 0
 
-    def _register(self,argument):
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("REG"+str(argument))
-        else:
-            self.__register(argument)
-        return 0
+#    def _register(self,argument):
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("REG"+str(argument))
+#        else:
+#            self.__register(argument)
+#        return 0
         
-    def __ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
+    def _ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
         self.processing.value="UBASE"+str(argument)
         ulichan,ulibase= argument.split('=')
         channels=ulichan.split('+')
@@ -368,14 +368,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.logfile.write( 'i2c slave address set: 0x%02X of channel %d\n' %(ulibase, int(f)))
         return 0
 
-    def _ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("UBASE"+str(argument))
-        else:
-            self.__ulibase(argument)
-        return 0
+#    def _ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("UBASE"+str(argument))
+#        else:
+#            self.__ulibase(argument)
+#        return 0
         
-    def __uliregister(self,argument):#UREGx[+y]:aa=bb -> channel=x[and y],reg=aa,data=bb
+    def _uliregister(self,argument):#UREGx[+y]:aa=bb -> channel=x[and y],reg=aa,data=bb
         self.processing.value="UREG"+str(argument)
         ulichan,i2cdata=argument.split(':')
         ulireg,ulidata=i2cdata.split('=')
@@ -397,26 +397,26 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.logfile.write( 'channel = %d, reg address = 0x%02X, data = 0x%02X\n'   %( int(f), ulireg, ulidata ))
         return 0
 
-    def _uliregister(self,argument):#UREGx[+y]:aa=bb -> channel=x[and y],reg=aa,data=bb
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("UREG"+str(argument))
-        else:
-            self.__uliregister(argument)
-        return 0
+#    def _uliregister(self,argument):#UREGx[+y]:aa=bb -> channel=x[and y],reg=aa,data=bb
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("UREG"+str(argument))
+#        else:
+#            self.__uliregister(argument)
+#        return 0
 
-    def __chanset(self,channels):
+    def _chanset(self,channels):
         self.processing.value="CHAN"+str(channels)
         self.logfile.write( 'set channels(@'+channels.replace('+',',')+')')
         self.shellResponse( 'set channels(@'+channels.replace('+',',')+')')
         self.A34970A.setChannel('(@'+channels.replace('+',',')+')')
         return 0
     
-    def _chanset(self,channels):
-        if (self.isInLoop!=[]):#==True):
-            self.lpContain.append("CHAN"+str(channels))
-        else:
-            self.__chanset(channels)
-        return 0
+#    def _chanset(self,channels):
+#        if (self.isInLoop!=[]):#==True):
+#            self.lpContain.append("CHAN"+str(channels))
+#        else:
+#            self.__chanset(channels)
+#        return 0
 
     def _for(self,argument=1):
 #        self.isInLoop.append(True)
