@@ -366,6 +366,12 @@ class serial_i2c(object):
             self.I2C.setChannel(channel)
         pass
 
+    def getChannel(self):
+        channel=-1
+        if self.isUse == True:
+            channel = self.Channel
+        return channel
+        
 class dummy(object):
     def __init__(self):
         pass 
@@ -389,6 +395,15 @@ class dummy(object):
         return -34401
 
     def setChannel(self,chanlist):
+        pass
+        
+    def getChannel(self):
+        return -1
+        
+    def setBase(self,channel,base):
+        pass
+
+    def regWrite(self,reg,data):
         pass
 
     def getTemp(self):
