@@ -26,6 +26,10 @@ volt3.7
 //sample,sample
 //sample
 //temp30
+Schan0
+Sbase90
+Sregaa=55
+eof
 base90 //0x90(8)=0x48(7)
 ubase0+1=90
 
