@@ -5,8 +5,6 @@ import os
 
 import serial2i2c
 
-#import textwrap
-
 class powersupply(object):
     PSU=False
     rm=False
@@ -325,6 +323,24 @@ class chamber(object):
         visa.VisaLibrary.gpib_control_ren(visalib, self.CHAMBER.session,6)
         visa.VisaLibrary.close(visalib, self.CHAMBER.session)
         return True
+
+class serial_i2c(object):
+    isUse=False
+    baud='115200'
+    port='com3'
+    channel='0'
+    slave=0x90
+    def __init__(self, port='com3', baud='115200', isUse=False):
+        pass
+        
+    def setBase(self, channel='0', base=0x90):
+        pass
+
+    def regWrite(self, reg, data):
+        pass
+        
+    def setChannel(self, channel):
+        pass
 
 class dummy(object):
     def __init__(self):
