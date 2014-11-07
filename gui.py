@@ -44,8 +44,9 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("FOR",    self._for)
         self.add_command("LOOP",    self._loop)
 
-#        self.add_command("SBASE",    self._serialbase)
-#        self.add_command("SREG",    self._serialregister)
+        self.add_command("SBASE",    self._serialbase)
+        self.add_command("SREG",    self._serialregister)
+        self.add_command("SCHAN",    self._serialchannel)
         
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
             value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
@@ -177,11 +178,13 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.Chamber = instr_local.chamber(rm,self.chamber.get_value(),self.isctrl_chamber.value)
             self.A34401A = instr_local.multimeter(rm,self.dmm1.get_value(),self.isUSB_dmm1.value)
             self.A34970A = instr_local.multimeter2(rm,self.dmm2.get_value(),self.isuse_dmm2.value)
+            self.mbedI2C = instr_local.serial_i2c(rm,self.serial.get_value(),self.isuse_serial.value)
         except:
             self.E3640A = instr_local.dummy()
             self.Chamber = instr_local.dummy()
             self.A34401A = instr_local.dummy()
             self.A34970A = instr_local.dummy()
+            self.mbedI2C = instr_local.dummy()
             npyscreen.notify_confirm(str(sys.exc_info()[1]),title="SUSPEND",editw=1)
             self.logfile.write("=-=-=-=-= using dummy instruments =-=-=-=-=\n")
         self.E3640A.output(True)
@@ -339,10 +342,29 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.logfile.write( 'channel = %d, reg address = 0x%02X, data = 0x%02X\n'   %( int(f), ulireg, ulidata ))
         return 0
 
-    def _serialbase(self, argument):
+    def _serialbase(self, baseaddr=0x90):
+        baseaddr=int(baseaddr)
+        self.processing.value="SBASE"+str(baseaddr)
+        self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
+        self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
+        time.sleep(10)#release code
         pass
         
     def _serialregister(self,argument):
+        self.processing.value="SREG"+str(argument)
+        i2creg,i2cdata=argument.split('=')
+        i2creg= int(i2creg ,16)
+        i2cdata= int(i2cdata ,16)
+        self.logfile.write( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
+        self.shellResponse( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
+        time.sleep(10)#release code
+        pass
+        
+    def _serialchannel(self,channel):
+        self.processing.value="SCHAN"+str(channel)
+        self.logfile.write( 'set channels(@'+str(channel)+')')
+        self.shellResponse( 'set channels(@'+str(channel)+')')
+        time.sleep(10)#release code
         pass
 
     def _chanset(self,channels):
