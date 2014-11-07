@@ -45,52 +45,42 @@ reg01=10,ureg0+1:01=10,reg02=10,ureg0+1:02=10,reg03=10,ureg0+1:03=10,reg04=10,ur
 reg06=08,ureg0:06=08
 ureg0+1:0A=10
     
-CHAN101+102+106+107+111+112+116+121+122+126+127+131+132+136, sample
+CHAN 101+102+106+107+111+112+116+121+122+126+127+131+132+136, sample
 
 for -40+-20+0+20+30+40+60+80+100+120;temp
 //    dely2
 //    CHAN101+102+106+111+112+121+122+127+132
-    CHAN127
-        for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg01=
-            sample
-        loop
-    CHAN111
-        for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg02=
-            sample
-        loop
-    CHAN102
-        for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg03=
-            sample
-        loop
-    CHAN116
-        for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg04=
-            sample
-        loop
-    CHAN112+101
-        for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:01=
-            sample
-        loop
-    CHAN122
-        for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0:02=
-            sample
-        loop
-    CHAN132
-        for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:03=
-            sample
-        loop
+    CHAN 127, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg01=
+        sample
+    loop
+    CHAN 111, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg02=
+        sample
+    loop
+    CHAN 102, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg03=
+        sample
+    loop
+    CHAN 116, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg04=
+        sample
+    loop
+    CHAN 112+101, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:01=
+        sample
+    loop
+    CHAN 122, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0:02=
+        sample
+    loop
+    CHAN 132, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:03=
+        sample
+    loop
     for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:04=
         sample
     loop
-    CHAN116
-    for 08+09+0a+0b+0c+0d+0e+0f;reg06=
+    CHAN 116, for 08+09+0a+0b+0c+0d+0e+0f;reg06=
         sample
     loop
-    CHAN136
-    for 08+09+0a+0b+0c+0d+0e+0f;ureg0:06=
+    CHAN 136, for 08+09+0a+0b+0c+0d+0e+0f;ureg0:06=
         sample
     loop
-    CHAN126+131
-    for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:0A=
+    CHAN 126+131, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:0A=
         sample
     loop
 loop
