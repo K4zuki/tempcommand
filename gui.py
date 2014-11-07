@@ -18,7 +18,7 @@ class TempCtrl(npyscreen.NPSAppManaged):
         self.mainform=self.addForm("MAIN", MainForm, name="\tTemerature Control and measurement\t",color="GOOD" , )
 
 class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
-    TCrun=False
+#    TCrun=False
     isSuspend=False
     hoge=None
     outfile=None
@@ -82,32 +82,32 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.display()
 
     def on_cancel(self):
-        if self.TCrun:
-            self.shellResponse( " ### cancel while TCrun: make SAFE closing! ### ")
-            self.display()
-            time.sleep(1)
-            self.exit_application()
-        else:
-            self.shellResponse( " ### cancel before TCrun: just close ### ")
-            self.display()
-            time.sleep(1)
-            self.exit_application()
+#        if self.TCrun:
+#            self.shellResponse( " ### cancel while TCrun: make SAFE closing! ### ")
+#            self.display()
+#            time.sleep(1)
+#            self.exit_application()
+#        else:
+        self.shellResponse( " ### cancel before TCrun: just close ### ")
+        self.display()
+        time.sleep(1)
+        self.exit_application()
     
     def on_ok(self):
-        if self.TCrun:
-            self.shellResponse( "ok while TCrun: do nothing")
-        else:
+#        if self.TCrun:
+#            self.shellResponse( "ok while TCrun: do nothing")
+#        else:
             #vvv debug code vvv
-#            self.shellResponse( " ### ok before TCrun: start run ###")
-#            self.shellResponse(self.psu.get_value())
-#            self.shellResponse(self.chamber.get_value())
-#            self.shellResponse(self.dmm1.get_value())
-#            self.shellResponse(self.dmm2.get_value())
-#            self.shellResponse(str(self.isuse_dmm2.value))
-#            self.shellResponse(str(self.isctrl_chamber.value))
+#        self.shellResponse( " ### ok before TCrun: start run ###")
+#        self.shellResponse(self.psu.get_value())
+#        self.shellResponse(self.chamber.get_value())
+#        self.shellResponse(self.dmm1.get_value())
+#        self.shellResponse(self.dmm2.get_value())
+#        self.shellResponse(str(self.isuse_dmm2.value))
+#        self.shellResponse(str(self.isctrl_chamber.value))
             #^^^ debug code ^^^
-            self.TCrun=True
-            self.tc_run()
+#        self.TCrun=True
+        self.tc_run()
 
     def exit_application(self):
         self.parentApp.NEXT_ACTIVE_FORM = None
