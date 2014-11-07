@@ -316,8 +316,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             else:
                 self.uli2c[int(f)]= uli.I2C( 0, ulibase, int(f))#0x48/7bit=0x90/8bit
             self.outfile.write("SLAVE= 0x%02X,CH= %d (8bit)\n" %(ulibase, int(f)))
-            self.shellResponse( 'i2c slave address set: 0x%02X of channel %d' %(ulibase, int(f)) )
-            self.logfile.write( 'i2c slave address set: 0x%02X of channel %d\n' %(ulibase, int(f)))
+            self.shellResponse( 'i2c slave address set: 0x%02X of channel u%d' %(ulibase, int(f)) )
+            self.logfile.write( 'i2c slave address set: 0x%02X of channel u%d\n' %(ulibase, int(f)))
         return 0
 
     def _uliregister(self,argument):#UREGx[+y]:aa=bb -> channel=x[and y],reg=aa,data=bb
@@ -338,8 +338,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             else:
                 self.uli2c[int(f)].write_register( ulireg, ulidata )
             self.outfile.write( 'channel %d,reg%02Xh =, 0x%02X\n' %( int(f), ulireg, ulidata ))
-            self.shellResponse( 'channel = %d, reg address = 0x%02X, data = 0x%02X'     %( int(f), ulireg, ulidata ))
-            self.logfile.write( 'channel = %d, reg address = 0x%02X, data = 0x%02X\n'   %( int(f), ulireg, ulidata ))
+            self.shellResponse( 'channel = u%d, reg address = 0x%02X, data = 0x%02X'     %( int(f), ulireg, ulidata ))
+            self.logfile.write( 'channel = u%d, reg address = 0x%02X, data = 0x%02X\n'   %( int(f), ulireg, ulidata ))
         return 0
 
     def _serialbase(self, baseaddr=0x90):
@@ -347,7 +347,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.processing.value="SBASE"+str(baseaddr)
         self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
         self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
-        time.sleep(.5)#release code
+        self.logfile.write( 'i2c slave address set: 0x%02X of channel s%d\n' %(baseaddr, self.mbedI2C.getChannel()))
         pass
         
     def _serialregister(self,argument):
@@ -355,16 +355,17 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         i2creg,i2cdata=argument.split('=')
         i2creg= int(i2creg ,16)
         i2cdata= int(i2cdata ,16)
+        self.mbedI2C.regWrite(i2creg,i2cdata)
         self.logfile.write( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
         self.shellResponse( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
-        time.sleep(.5)#release code
+        self.outfile.write( 'channel s%d,reg%02Xh =, 0x%02X\n' %( self.mbedI2C.getChannel(), i2creg, i2cdata ))
         pass
         
     def _serialchannel(self,channel):
         self.processing.value="SCHAN"+str(channel)
-        self.logfile.write( 'set channels(@'+str(channel)+')')
-        self.shellResponse( 'set channels(@'+str(channel)+')')
-        time.sleep(.5)#release code
+        self.logfile.write( 'set channel to '+str(channel)+')')
+        self.shellResponse( 'set channel to '+str(channel)+')')
+        self.outfile.write( 'I2C channel ,s%d\n' %( self.mbedI2C.getChannel()))
         pass
 
     def _chanset(self,channels):
