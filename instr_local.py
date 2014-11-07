@@ -3,7 +3,9 @@ import time
 import datetime
 import os
 
-import textwrap
+import serial2i2c
+
+#import textwrap
 
 class powersupply(object):
     PSU=False
