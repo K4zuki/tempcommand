@@ -17,11 +17,6 @@ class TempCtrl(npyscreen.NPSAppManaged):
     def onStart(self):
         self.mainform=self.addForm("MAIN", MainForm, name="\tTemerature Control and measurement\t",color="GOOD" , )
 
-    def change_form(self, name):
-        self.switchForm(name)
-        self.resetHistory()
-
-
 class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
     TCrun=False
     isSuspend=False
@@ -46,22 +41,35 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("UBASE",   self._ulibase)
         self.add_command("UREG",   self._uliregister)
         self.add_command("CHAN",    self._chanset)
-
         self.add_command("FOR",    self._for)
         self.add_command("LOOP",    self._loop)
+
+#        self.add_command("SBASE",    self._serialbase)
+#        self.add_command("SREG",    self._serialregister)
         
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-            value="W:\\Tokyo\\Data\\DEsign Center\\")
-        self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24")
-        self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16")
-        self.isctrl_chamber = self.add(npyscreen.CheckBox, value = False, name="Control Temp")
-        self.dmm1 = self.add(npyscreen.TitleText, name = "Multimeter1:", value="2")
-        self.isUSB_dmm1= self.add(npyscreen.CheckBox, value = False, name="34461A")
-        self.dmm2 = self.add(npyscreen.TitleText, name = "Multimeter2:", value="10")
-        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = False, name="Use")
+            value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
+        self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
+
+        self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16",width=35)
+        self.nextrely -= 1
+        self.isctrl_chamber = self.add(npyscreen.CheckBox, value = False, name="Control Temp",relx=40, width=35)
+
+        self.dmm1 = self.add(npyscreen.TitleText, name = "Multimeter1:", value="2",width=35)
+        self.nextrely -= 1
+        self.isUSB_dmm1= self.add(npyscreen.CheckBox, value = False, name="34461A",relx=40, width=35)
+
+        self.dmm2 = self.add(npyscreen.TitleText, name = "Multimeter2:", value="10",width=35)
+        self.nextrely -= 1
+        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = False, name="Use",relx=40, width=35)
+
+        self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com3",width=35)
+        self.nextrely -= 1
+        self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use",relx=40, width=35)
+
         self.Tcurrent = self.add(npyscreen.TitleFixedText,  name = "current temp:",
             value="    27.0 oC    >>>",max_width=40, editable=False)
-        self.nextrely-=1
+        self.nextrely -= 1
         self.Ttarget = self.add(npyscreen.TitleFixedText, name = "target temp:",
             value="27.0 oC", editable=False,relx=40)
         self.processing = self.add(npyscreen.TitleFixedText, name = "In process:",
@@ -73,9 +81,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shell.value = ">>> "+str(string)+"\n"+self.shell.value
         self.display()
 
-    def change_forms(self, *args, **keywords):
-        self.shellResponse("hoge")
-        
     def on_cancel(self):
         if self.TCrun:
             self.shellResponse( " ### cancel while TCrun: make SAFE closing! ### ")
@@ -92,13 +97,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         if self.TCrun:
             self.shellResponse( "ok while TCrun: do nothing")
         else:
-            self.scrfilename.editable=False
-            self.psu.editable=False
-            self.dmm1.editable=False
-            self.dmm2.editable=False
-            self.isuse_dmm2.editable=False
-            self.chamber.editable=False
-            self.isctrl_chamber.editable=False
             #vvv debug code vvv
 #            self.shellResponse( " ### ok before TCrun: start run ###")
 #            self.shellResponse(self.psu.get_value())
@@ -208,8 +206,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.exit_application()
 
     def _eof(self,dummy=-1):
-        if (self.isInLoop!=[]):#==True):
-            self.shellResponse('EndOfFile triggered')
+        self.shellResponse('EndOfFile triggered')
         return -1
 
     def _temp(self,temp=30):
@@ -236,13 +233,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write(temp+"oC\n")
         return 0
 
-#    def _temp(self,temp=30):
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("TEMP"+str(temp))
-#        else:
-#            self.__temp(temp)
-#        return 0
-
     def _sample(self,dummy=-1):
         self.processing.value="SAMPLE"
         self.logfile.write( 'sample triggered')
@@ -252,18 +242,10 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write(read+"\n")
         return 0
 
-#    def _sample(self,dummy=-1):
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("SAMPLE")
-#        else:
-#            self.__sample(dummy)
-#        return 0
-
     def _suspend(self,dummy=-1):
         self.logfile.write( 'suspend triggered->')
         self.shellResponse( 'suspend triggered')
 
-        self.parentApp.change_form("SUB")
         npyscreen.notify_confirm("\n\t\t-=-=-=-SUSPEND-=-=-=-\n"+\
             "I would like more flexible popup which runs temp check in buckground but for now this is the solution as this works anyway..."
             ,title="SUSPEND",editw=1)
@@ -272,13 +254,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shellResponse( 'return from popup')
         return 0
 
-#    def _suspend(self,dummy=-1):
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("SUSPEND")
-#        else:
-#            self.__suspend(dummy)
-#        return 0
-    
     def _volt(self,volt=3.0):
         self.processing.value="VOLT"+str(volt)
         self.logfile.write( 'voltage set: '+volt+' V')
@@ -287,13 +262,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.E3640A.SetVoltage(volt)
         return 0
 
-#    def _volt(self,volt=3.0):
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("VOLT"+str(volt))
-#        else:
-#            self.__volt(volt)
-#        return 0
-        
     def _delay(self,delay=1):
         self.processing.value="DELY"+str(delay)
         self.shellResponse( 'wait for: '+delay+' minutes')
@@ -303,13 +271,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             time.sleep(10)
         return 0
 
-#    def _delay(self,delay=1):
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("DELY"+str(delay))
-#        else:
-#            self.__delay(delay)
-#        return 0
-    
     def _kikusui(self,current=0.001):
         self.logfile.write( 'current set: '+current+' A')
         self.shellResponse( 'current set: '+current+' A')
@@ -324,13 +285,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write("SLAVE = 0x"+str(baseaddr)+",(8it)\n")
         return 0
    
-#    def _base(self,baseaddr=0x90):
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("BASE"+str(baseaddr))
-#        else:
-#            self.__base(baseaddr)
-#        return 0
-
     def _register(self,argument):
         self.processing.value="REG"+str(argument)
         i2creg,i2cdata=argument.split('=')
@@ -344,13 +298,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write( ',reg%02Xh =, 0x%02X\n' %( i2creg ,i2cdata ))
         return 0
 
-#    def _register(self,argument):
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("REG"+str(argument))
-#        else:
-#            self.__register(argument)
-#        return 0
-        
     def _ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
         self.processing.value="UBASE"+str(argument)
         ulichan,ulibase= argument.split('=')
@@ -370,13 +317,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.logfile.write( 'i2c slave address set: 0x%02X of channel %d\n' %(ulibase, int(f)))
         return 0
 
-#    def _ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("UBASE"+str(argument))
-#        else:
-#            self.__ulibase(argument)
-#        return 0
-        
     def _uliregister(self,argument):#UREGx[+y]:aa=bb -> channel=x[and y],reg=aa,data=bb
         self.processing.value="UREG"+str(argument)
         ulichan,i2cdata=argument.split(':')
@@ -399,12 +339,11 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.logfile.write( 'channel = %d, reg address = 0x%02X, data = 0x%02X\n'   %( int(f), ulireg, ulidata ))
         return 0
 
-#    def _uliregister(self,argument):#UREGx[+y]:aa=bb -> channel=x[and y],reg=aa,data=bb
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("UREG"+str(argument))
-#        else:
-#            self.__uliregister(argument)
-#        return 0
+    def _serialbase(self, argument):
+        pass
+        
+    def _serialregister(self,argument):
+        pass
 
     def _chanset(self,channels):
         self.processing.value="CHAN"+str(channels)
@@ -413,13 +352,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.A34970A.setChannel('(@'+channels.replace('+',',')+')')
         return 0
     
-#    def _chanset(self,channels):
-#        if (self.isInLoop!=[]):#==True):
-#            self.lpContain.append("CHAN"+str(channels))
-#        else:
-#            self.__chanset(channels)
-#        return 0
-
     def _for(self,argument=1):
 #        self.isInLoop.append(True)
         self.logfile.write( str(self.isInLoop) )
