@@ -59,6 +59,8 @@ class serial2i2c(object):
         print packet
         for hoge in packet:
             self.ser.write(hoge)
+        time.sleep(self.wait*length*2)
+        return(self.ser.readline().strip())
         pass
 
     def write2(self,address,data=0):
