@@ -26,7 +26,7 @@ volt3.7
 //sample,sample
 //sample
 //temp30
-Schan0
+//Schan0
 for 0+1+2+3;schan
     Sbase90
     Sregaa=55
