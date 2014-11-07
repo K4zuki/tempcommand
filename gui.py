@@ -51,7 +51,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("LOOP",    self._loop)
         
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-            value="")
+            value="W:\\Tokyo\\Data\\DEsign Center\\")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24")
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16")
         self.isctrl_chamber = self.add(npyscreen.CheckBox, value = False, name="Control Temp")
@@ -132,7 +132,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 
         try:
             self.cypress = usbio.usbio.autodetect()
-            sys.stdout = sys.__stdout__
+#            sys.stdout = sys.__stdout__
         except :
             npyscreen.notify_confirm(str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.i2c =False
