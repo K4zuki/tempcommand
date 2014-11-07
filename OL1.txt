@@ -27,8 +27,10 @@ volt3.7
 //sample
 //temp30
 Schan0
-Sbase90
-Sregaa=55
+for 0+1+2+3;schan
+    Sbase90
+    Sregaa=55
+loop
 eof
 base90 //0x90(8)=0x48(7)
 ubase0+1=90
