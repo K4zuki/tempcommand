@@ -14,6 +14,7 @@ import time
 # I 0x49 read GPIO port
 # O 0x4F write to GPIO port
 # Z 0x5A power down
+# C 0x43 change channel
 
 class serial2i2c(object):
     ser=0
@@ -47,6 +48,19 @@ class serial2i2c(object):
         return(self.ser.readline().strip())
         pass
         
+    def read2(self,address,length=1):
+        packet=['S','P']
+        address=self.convert_hex_to_ascii2(address,0xa0)
+        alength=len(address)/2
+        packet.insert(1,chr(ord(address[0])|1))
+        packet.insert(1,address[1])
+        for hoge in self.convert_hex_to_ascii2(length,0xd0):
+            packet.insert(3,hoge)
+        print packet
+        for hoge in packet:
+            self.ser.write(hoge)
+        pass
+
     def write2(self,address,data=0):
         packet=['S','P']
 #        print address,self.convert_hex_to_ascii2(address,0xa0)
@@ -241,7 +255,8 @@ if __name__=="__main__":
 ##    print dev.write2(0xD0,0xD846)
 ##    print dev.write2(0xD0,0x5D00)
     
-    while True:
+    print dev.read2(0xD0,1)
+    while False:
         print dev.write2(0xD0,0x5D00)
 ##        print dev.write2(0xD0,0x5D01)
 #        print dev.write_and_read2(0xD0,0x50,16)
