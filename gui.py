@@ -347,7 +347,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.processing.value="SBASE"+str(baseaddr)
         self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
         self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
-        time.sleep(10)#release code
+        time.sleep(.5)#release code
         pass
         
     def _serialregister(self,argument):
@@ -357,14 +357,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         i2cdata= int(i2cdata ,16)
         self.logfile.write( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
         self.shellResponse( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
-        time.sleep(10)#release code
+        time.sleep(.5)#release code
         pass
         
     def _serialchannel(self,channel):
         self.processing.value="SCHAN"+str(channel)
         self.logfile.write( 'set channels(@'+str(channel)+')')
         self.shellResponse( 'set channels(@'+str(channel)+')')
-        time.sleep(10)#release code
+        time.sleep(.5)#release code
         pass
 
     def _chanset(self,channels):

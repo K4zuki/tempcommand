@@ -73,40 +73,31 @@ class tempcommand():
         a_result=[]
         
         if(c_list.count("FOR")>0):
-#            print "GTG"
             for hoge in range(len(c_list)):
                 if c_list[hoge] == "FOR":
                     F_index.append(hoge)
                 elif c_list[hoge] == "LOOP":
                     L_index.append(hoge)
-#            print "_index_",F_index,L_index
             i=0
             while(len(F_index)>0):
                 hoge=F_index.pop()
                 i=0
-#                print "_for_",hoge,"_loop_",
                 for foo in range(len(L_index)):
                     if L_index[foo]>hoge:
                         break
                         
                 foo=L_index.pop(foo)
-#                print foo
                 result.append([hoge,foo])
             result.reverse()
             result=result.pop()
-#            print "_result_",result
-#            print "_loop_",c_list[result[0]:result[1]],a_list[result[0]:result[1]]
             c_result,a_result = self._break_loop( c_list[result[0]:result[1]],
                                     a_list[result[0]:result[1]])
             for hoge in range(len(c_list[result[0]:result[1]+1])):
                 c_list.pop(result[0])
                 a_list.pop(result[0])
-#                print hoge
             for hoge in range(len(c_result)):
                 c_list.insert(result[0],c_result.pop())
                 a_list.insert(result[0],a_result.pop())
-#            print "_returnC_",c_list
-#            print "_returnA_",a_list
             self.break_loop(c_list,a_list)
 
         return c_list,a_list
@@ -118,7 +109,6 @@ class tempcommand():
         var=a_list[0].split(";")
         lst=var[0].split("+")
         for var[0] in lst:
-#            print str(var[1])+str(var[0])
             for comd, func in self.commandset.iteritems():
                 read=(str(var[1])+str(var[0])).split(comd)
                 if(read[0])=='':
@@ -129,18 +119,8 @@ class tempcommand():
                     for foo in a_list[1:]:
                         a_result.append(foo)
 
-#        print c_result,a_result
         return (c_result,a_result)
         pass
-        
-#    def command_execute(self,commandlist,argumentlist):
-#        execute=-1
-#        for index in range(len(commandlist)):
-#            try:
-#                execute=self.commandset[commandlist[index]][0](argumentlist[index]) 
-#            except:
-#                pass
-#        pass
         
     def parse_list(self,comlist,arglist,logfile):
         execute=-1
