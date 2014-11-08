@@ -31,7 +31,7 @@ for 0+1+2+3;schan
     Sbase90
     Sregaa=55
 loop
-eof
+//eof
 base90 //0x90(8)=0x48(7)
 ubase0+1=90
 
