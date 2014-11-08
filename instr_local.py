@@ -10,8 +10,8 @@ try:
     import uli
     import usbio.usbio as usbio
 except:
-    from dummyUSB import uli 
-    from dummyUSB import usbio
+    import dummyULI as uli 
+    import dummyUSB as usbio
 
 class powersupply(object):
     PSU=False
