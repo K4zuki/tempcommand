@@ -14,5 +14,5 @@ class I2C(object):
 #    def I2C(self,module,slave,channel):
 #        pass
         
-    def autodetect(self):
-        pass
+def autodetect():
+    pass
