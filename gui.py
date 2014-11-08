@@ -291,7 +291,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.processing.value="BASE"+str(baseaddr)
         self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
         self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
-        self.i2c = usbio.usbio.I2C(self.cypress, baseaddr)
+        self.i2c = usbio.I2C(self.cypress, baseaddr)
         self.outfile.write("SLAVE = 0x"+str(baseaddr)+",(8it)\n")
         return 0
    
@@ -322,7 +322,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 pass
             else:
                 self.uli2c[int(f)]= uli.I2C( 0, ulibase, int(f))#0x48/7bit=0x90/8bit
-            self.outfile.write("SLAVE= 0x%02X,CH= %d (8bit)\n" %(ulibase, int(f)))
+            self.outfile.write("SLAVE= 0x%02X,CH= u%d (8bit)\n" %(ulibase, int(f)))
             self.shellResponse( 'i2c slave address set: 0x%02X of channel u%d' %(ulibase, int(f)) )
             self.logfile.write( 'i2c slave address set: 0x%02X of channel u%d\n' %(ulibase, int(f)))
         return 0
@@ -344,7 +344,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 pass
             else:
                 self.uli2c[int(f)].write_register( ulireg, ulidata )
-            self.outfile.write( 'channel %d,reg%02Xh =, 0x%02X\n' %( int(f), ulireg, ulidata ))
+            self.outfile.write( 'channel u%d,reg%02Xh =, 0x%02X\n' %( int(f), ulireg, ulidata ))
             self.shellResponse( 'channel = u%d, reg address = 0x%02X, data = 0x%02X'     %( int(f), ulireg, ulidata ))
             self.logfile.write( 'channel = u%d, reg address = 0x%02X, data = 0x%02X\n'   %( int(f), ulireg, ulidata ))
         return 0
@@ -370,8 +370,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         
     def _serialchannel(self,channel):
         self.processing.value="SCHAN"+str(channel)
-        self.logfile.write( 'set channel to '+str(channel)+')')
-        self.shellResponse( 'set channel to '+str(channel)+')')
+        self.logfile.write( 'set channel to s'+str(channel)+')')
+        self.shellResponse( 'set channel to s'+str(channel)+')')
         self.outfile.write( 'I2C channel ,s%d\n' %( self.mbedI2C.getChannel()))
         pass
 
