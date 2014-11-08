@@ -6,12 +6,16 @@ import tempcommand
 
 import npyscreen
 import visa
-import usbio.usbio
 import time
 import datetime
-import os,sys,stat
-import uli
+import os,sys,stat,socket
 
+try:
+    import uli
+    import usbio.usbio as usbio
+except:
+    import dummyULI as uli 
+    import dummyUSB as usbio
 
 class TempCtrl(npyscreen.NPSAppManaged):
     def onStart(self):
@@ -49,7 +53,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("SCHAN",    self._serialchannel)
         
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-            value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
+            value="./")
+#            value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
 
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16",width=35)
@@ -124,21 +129,23 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         filename = todaydir+"\\"+todaydetail.strftime("%H.%M.%S")+".chamber.csv"
 
         self.outfile = open( filename,'a' )
-        self.outfile.write( os.environ['COMPUTERNAME']+"\n" )
+#        self.outfile.write( os.environ['COMPUTERNAME']+"\n" )
+        self.outfile.write( socket.gethostname()+"\n" )
         self.outfile.write( monthname.monthname()+"\\"+todaydetail.strftime("%H.%M.%S")+".chamber.csv"+"\n" )
         
         self.logfile=open(filename+".log",'a')
 
         try:
-            self.cypress = usbio.usbio.autodetect()
-#            sys.stdout = sys.__stdout__
+#            self.cypress = usbio.usbio.autodetect()
+            self.cypress = usbio.autodetect()
         except :
             npyscreen.notify_confirm(str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.i2c =False
             self.cypress=-99
             self.shellResponse("no Cypress I2C connected")
         else:
-            self.i2c  = usbio.usbio.I2C(self.cypress, 0x90)#0x48/7bit=0x90/8bit
+#            self.i2c  = usbio.usbio.I2C(self.cypress, 0x90)#0x48/7bit=0x90/8bit
+            self.i2c  = usbio.I2C(self.cypress, 0x90)#0x48/7bit=0x90/8bit
 
 
         self.uli2c[0] = uli.I2C( 0, 0x90, 0)#0x48/7bit=0x90/8bit

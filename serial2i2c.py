@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*- 
+#!/usr/bin/env python
 import serial
 import argparse
 import struct
