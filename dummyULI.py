@@ -1,10 +1,16 @@
 #-*- coding: utf-8 -*- 
 #!/usr/bin/env python
 
-class uli(object):
-    def __init__(self):
+class I2C(object):
+    def __init__(self,module,slave,channel):
         pass
         
-    def I2C(self,module,slave,channel):
+    def searchI2CDev(self,begin,end):
         pass
+        
+    def write_register(self, reg, data):
+        pass
+        
+#    def I2C(self,module,slave,channel):
+#        pass
         
