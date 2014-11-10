@@ -10,6 +10,7 @@ import time
 import datetime
 import os,sys,stat,socket
 
+
 try:
     import uli
 except:
@@ -55,8 +56,16 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("SREG",    self._serialregister)
         self.add_command("SCHAN",    self._serialchannel)
         
+        self.sendto = self.add(npyscreen.TitleFilename, name = "Send to:", width=35,
+            value="user@example.com")
+        self.nextrely -= 1
+        self.sendsrv = self.add(npyscreen.TitleFilename, name = "using:",relx=40,width=35,
+            value="smtp.example.com")
+        self.nextrely -= 1
+        self.isuse_email = self.add(npyscreen.CheckBox, value = True, name="Use",relx=80, width=35)
+
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-            value="./")
+            value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
 #            value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
 
@@ -129,7 +138,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         todaydir= "C:\\Users\\Public\\Documents\\"+monthname.monthname()#todaydetail.strftime("%Y.%m%b.%d")
         if os.path.exists(todaydir) !=1:
             os.mkdir(todaydir)
-        filename = todaydir+"\\"+todaydetail.strftime("%H.%M.%S")+".chamber.csv"
+        csvname = todaydetail.strftime("%H.%M.%S")+".chamber.csv"
+        filename = todaydir+"\\"+csvname
 
         self.outfile = open( filename,'a' )
 #        self.outfile.write( os.environ['COMPUTERNAME']+"\n" )
@@ -206,8 +216,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #        self.make_list(script)
 #        self.break_loop(self.commandList,self.argumentList)
 #        self.parse_list(self.commandList,self.argumentList,self.logfile)
-        todaydetail = datetime.datetime.today()
-        self.outfile.write(todaydetail.strftime("%H.%M.%S")+" finished\n")
+        time_finished = todaydetail.strftime("%H.%M.%S")
+        self.outfile.write(time_finished+" finished\n")
         self.outfile.close()
         self.logfile.close()
         os.chmod(filename,stat.S_IREAD)
@@ -216,7 +226,33 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.Chamber.disconnect(lib)
         self.A34401A.disconnect(lib)
         self.A34970A.disconnect(lib)
+        info=(socket.gethostname(),csvname,time_finished)
+        self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
         self.exit_application()
+        
+    def sendmail(self,address,server,info,isuse=False):
+        import smtplib
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        msg = MIMEMultipart()
+        machinename,outfile,finished = info
+        logfile=outfile+".csv"
+        sender = address
+#        sender = 'user@example.com' #will be changed
+        subject = "[ LAB ] tempctrl finished"
+        body = "Temerature Control and measurement finished on "+machinename+" at "+finished+".\n"\
+                +"outputs are "+outfile+" and "+logfile+""
+        
+        msg['From'] = sender
+        msg['To'] = sender
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+        text=msg.as_string()
+        #print text
+        # Send the message via our SMTP server
+        s = smtplib.SMTP(server) #will be changed
+        s.sendmail(sender,sender, text)
+        s.quit()
 
     def _eof(self,dummy=-1):
         self.shellResponse('EndOfFile triggered')
