@@ -62,7 +62,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.sendsrv = self.add(npyscreen.TitleFilename, name = "using:",relx=40,width=35,
             value="smtp.example.com")
         self.nextrely -= 1
-        self.isuse_email = self.add(npyscreen.CheckBox, value = True, name="Use",relx=80, width=35)
+        self.isuse_email = self.add(npyscreen.CheckBox, value = False, name="Use",relx=80, width=35)
 
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
             value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
@@ -227,32 +227,36 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.A34401A.disconnect(lib)
         self.A34970A.disconnect(lib)
         info=(socket.gethostname(),csvname,time_finished)
-        self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
+        try:
+            self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
+        except:
+            npyscreen.notify_confirm(str(sys.exc_info()[1]),title="SENDMAIL FAILED",editw=1)
+
         self.exit_application()
         
     def sendmail(self,address,server,info,isuse=False):
         import smtplib
         from email.mime.text import MIMEText
         from email.mime.multipart import MIMEMultipart
-        msg = MIMEMultipart()
-        machinename,outfile,finished = info
-        logfile=outfile+".csv"
-        sender = address
-#        sender = 'user@example.com' #will be changed
-        subject = "[ LAB ] tempctrl finished"
-        body = "Temerature Control and measurement finished on "+machinename+" at "+finished+".\n"\
-                +"outputs are "+outfile+" and "+logfile+""
-        
-        msg['From'] = sender
-        msg['To'] = sender
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'plain'))
-        text=msg.as_string()
-        #print text
-        # Send the message via our SMTP server
-        s = smtplib.SMTP(server) #will be changed
-        s.sendmail(sender,sender, text)
-        s.quit()
+        if isuse:
+            msg = MIMEMultipart()
+            machinename,outfile,finished = info
+            logfile=outfile+".csv"
+            sender = address
+            subject = "[ LAB ] tempctrl finished"
+            body = "Temerature Control and measurement finished on "+machinename+" at "+finished+".\n"\
+                    +"outputs are "+outfile+" and "+logfile+""
+            
+            msg['From'] = sender
+            msg['To'] = sender
+            msg['Subject'] = subject
+            msg.attach(MIMEText(body, 'plain'))
+            text=msg.as_string()
+            #print text
+            # Send the message via our SMTP server
+            s = smtplib.SMTP(server) #will be changed
+            s.sendmail(sender,sender, text)
+            s.quit()
 
     def _eof(self,dummy=-1):
         self.shellResponse('EndOfFile triggered')
