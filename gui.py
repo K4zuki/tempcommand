@@ -241,7 +241,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         if isuse:
             msg = MIMEMultipart()
             machinename,outfile,finished = info
-            logfile=outfile+".csv"
+            logfile=outfile+".log"
             sender = address
             subject = "[ LAB ] tempctrl finished"
             body = "Temerature Control and measurement finished on "+machinename+" at "+finished+".\n"\
