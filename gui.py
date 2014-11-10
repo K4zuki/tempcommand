@@ -12,9 +12,12 @@ import os,sys,stat,socket
 
 try:
     import uli
-    import usbio.usbio as usbio
 except:
     import dummyULI as uli 
+
+try:
+    import usbio.usbio as usbio
+except:
     import dummyUSB as usbio
 
 class TempCtrl(npyscreen.NPSAppManaged):
