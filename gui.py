@@ -456,6 +456,7 @@ if __name__ == '__main__':
         TC.run()
     except:
         npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
-    sys.stdout = sys.__stdout__
-    raw_input("\t -------- measurement finished (Enter key to exit) --------\n\n\n\n\n\n\n\n\n\n\n")
+    else:
+        sys.stdout = sys.__stdout__
+        raw_input("\t -------- measurement finished (Enter key to exit) --------\n\n\n\n\n\n\n\n\n\n\n")
 
