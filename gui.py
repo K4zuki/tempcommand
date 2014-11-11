@@ -10,7 +10,6 @@ import time
 import datetime
 import os,sys,stat,socket
 
-
 try:
     import uli
 except:
@@ -152,7 +151,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #            self.cypress = usbio.usbio.autodetect()
             self.cypress = usbio.autodetect()
         except :
-            npyscreen.notify_confirm(str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+#            npyscreen.notify_confirm(str(self.cypress),title="REPORT",editw=1)
+            npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.i2c =False
             self.cypress=-99
             self.shellResponse("no Cypress I2C connected")
@@ -205,7 +205,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.A34401A = instr_local.dummy()
             self.A34970A = instr_local.dummy()
             self.mbedI2C = instr_local.dummy()
-            npyscreen.notify_confirm(str(sys.exc_info()[1]),title="SUSPEND",editw=1)
+            npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.logfile.write("=-=-=-=-= using dummy instruments =-=-=-=-=\n")
         self.E3640A.output(True)
         
@@ -230,7 +230,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         try:
             self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
         except:
-            npyscreen.notify_confirm(str(sys.exc_info()[1]),title="SENDMAIL FAILED",editw=1)
+            npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
 
         self.exit_application()
         
@@ -335,6 +335,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
         self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
         self.i2c = usbio.I2C(self.cypress, baseaddr)
+#        self.i2c = usbio.usbio.I2C(self.cypress, baseaddr)
         self.outfile.write("SLAVE = 0x"+str(baseaddr)+",(8it)\n")
         return 0
    
@@ -451,7 +452,10 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 
 if __name__ == '__main__':
     TC = TempCtrl()
-    TC.run()
+    try:
+        TC.run()
+    except:
+        npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
     sys.stdout = sys.__stdout__
     raw_input("\t -------- measurement finished (Enter key to exit) --------\n\n\n\n\n\n\n\n\n\n\n")
 
