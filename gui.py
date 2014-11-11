@@ -64,8 +64,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.isuse_email = self.add(npyscreen.CheckBox, value = False, name="Use",relx=80, width=35)
 
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-            value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
-#            value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
+#            value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
+            value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
 
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16",width=35)
