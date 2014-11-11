@@ -6,12 +6,12 @@ import datetime
 import os
 
 import serial2i2c
-try:
-    import uli
-    import usbio.usbio as usbio
-except:
-    import dummyULI as uli 
-    import dummyUSB as usbio
+#try:
+#    import uli
+#    import usbio.usbio as usbio
+#except:
+#    import dummyULI as uli 
+#    import dummyUSB as usbio
 
 class powersupply(object):
     PSU=False
