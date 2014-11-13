@@ -33,5 +33,5 @@ def monthname():
     return basename
     
 if __name__ == "__main__":
-    print "this file returns directory name baseed on date of today."
+    print "this file returns directory name based on date of today."
     print monthname()
