@@ -9,6 +9,7 @@ import visa
 import time
 import datetime
 import os,sys,stat,socket
+import traceback
 
 try:
     import uli
@@ -55,14 +56,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("SREG",    self._serialregister)
         self.add_command("SCHAN",    self._serialchannel)
         
-        self.sendto = self.add(npyscreen.TitleFilename, name = "Send to:", width=35,
-            value="user@example.com")
-        self.nextrely -= 1
-        self.sendsrv = self.add(npyscreen.TitleFilename, name = "using:",relx=40,width=35,
-            value="smtp.example.com")
-        self.nextrely -= 1
-        self.isuse_email = self.add(npyscreen.CheckBox, value = False, name="Use",relx=80, width=35)
-
+        
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
 #            value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
             value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
@@ -70,19 +64,32 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16",width=35)
         self.nextrely -= 1
-        self.isctrl_chamber = self.add(npyscreen.CheckBox, value = False, name="Control Temp",relx=40, width=35)
+        self.isctrl_chamber = self.add(npyscreen.CheckBox, value = True, name="Control Temp",relx=40, width=35)
 
-        self.dmm1 = self.add(npyscreen.TitleText, name = "Multimeter1:", value="2",width=35)
+        self.dmm1 = self.add(npyscreen.TitleText, name = "Multimeter1:", value="2", width=35)
         self.nextrely -= 1
-        self.isUSB_dmm1= self.add(npyscreen.CheckBox, value = False, name="34461A",relx=40, width=35)
+        self.isUSB_dmm1= self.add(npyscreen.CheckBox, value = False, name="34461A", relx=40, width=35)
 
-        self.dmm2 = self.add(npyscreen.TitleText, name = "Multimeter2:", value="10",width=35)
+        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = False, name="Use DMM2", width=35)
+        self.isuse_dmm2.whenToggled=self.dmm2_toggled
         self.nextrely -= 1
-        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = False, name="Use",relx=40, width=35)
+        self.dmm2 = self.add(npyscreen.TitleText, name = "Multimeter2:", value="10", relx=40, width=35,
+            editable=False,hidden=True,)
 
-        self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com3",width=35)
+        self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use Ser-I2C", width=35)
+        self.isuse_serial.whenToggled=self.serial_toggled
         self.nextrely -= 1
-        self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use",relx=40, width=35)
+        self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com3",relx=40,width=35,
+            editable=False,hidden=True,)
+
+        self.isuse_email = self.add(npyscreen.CheckBox, value = False, name="Use email", width=15 )
+        self.isuse_email.whenToggled=self.email_toggled
+        self.nextrely -= 1
+        self.sendto = self.add(npyscreen.TitleFilename, name = "User:", width=40, relx=20,
+            editable=False,hidden=True, value="user@example.com")
+        self.nextrely -= 1
+        self.sendsrv = self.add(npyscreen.TitleFilename, name = "SMTP:",width=40, relx=60,
+            editable=False,hidden=True, value="smtp.example.com")
 
         self.Tcurrent = self.add(npyscreen.TitleFixedText,  name = "current temp:",
             value="    27.0 oC    >>>",max_width=40, editable=False)
@@ -93,7 +100,33 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             value="---",editable=False )
         self.shell = self.add(npyscreen.MultiLineEdit, scroll_end=True, value = ">>>\n", name="log:",
             multiline=True, editable=False)
+
+        self.dmm2_toggled()
+        self.serial_toggled()
+        self.email_toggled()
         
+
+    def dmm2_toggled(self):
+        self.dmm2.editable=self.isuse_dmm2.value
+        self.dmm2.hidden = not self.isuse_dmm2.value
+        self.dmm2.update()
+#        self.shellResponse( "toggled, "+str(self.isuse_dmm2.value))
+
+    def serial_toggled(self):
+        self.serial.editable=self.isuse_serial.value
+        self.serial.hidden = not self.isuse_serial.value
+        self.serial.update()
+#        self.shellResponse( "toggled, "+str(self.isuse_serial.value))
+        
+    def email_toggled(self):
+        self.sendto.editable=self.isuse_email.value
+        self.sendto.hidden = not self.isuse_email.value
+        self.sendsrv.editable=self.isuse_email.value
+        self.sendsrv.hidden = not self.isuse_email.value
+        self.sendto.update()
+        self.sendsrv.update()
+#        self.shellResponse( "toggled, "+str(self.isuse_email.value))
+
     def shellResponse(self,string):
         self.shell.value = ">>> "+str(string)+"\n"+self.shell.value
         self.display()
@@ -152,7 +185,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.cypress = usbio.autodetect()
         except :
 #            npyscreen.notify_confirm(str(self.cypress),title="REPORT",editw=1)
-            npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+            npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.i2c =False
             self.cypress=-99
             self.shellResponse("no Cypress I2C connected")
@@ -205,7 +238,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.A34401A = instr_local.dummy()
             self.A34970A = instr_local.dummy()
             self.mbedI2C = instr_local.dummy()
-            npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+            npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.logfile.write("=-=-=-=-= using dummy instruments =-=-=-=-=\n")
         self.E3640A.output(True)
         
