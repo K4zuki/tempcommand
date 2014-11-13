@@ -37,6 +37,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
     cypress=-99
     def create(self): 
         self.commandset={}
+
         self.add_command("EOF",     self._eof)
         self.add_command("TEMP",    self._temp)
         self.add_command("SAMPLE",  self._sample)
@@ -55,8 +56,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("SBASE",    self._serialbase)
         self.add_command("SREG",    self._serialregister)
         self.add_command("SCHAN",    self._serialchannel)
-        
-        
+
+
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
 #            value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
             value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
@@ -70,10 +71,22 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.nextrely -= 1
         self.isUSB_dmm1= self.add(npyscreen.CheckBox, value = False, name="34461A", relx=40, width=35)
 
-        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = False, name="Use DMM2", width=35)
+        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = True, name="Use DMM2", width=35)
         self.isuse_dmm2.whenToggled=self.dmm2_toggled
         self.nextrely -= 1
         self.dmm2 = self.add(npyscreen.TitleText, name = "Multimeter2:", value="10", relx=40, width=35,
+            editable=False,hidden=True,)
+
+        self.isuse_smu = self.add(npyscreen.CheckBox, value = False, name="Use KEITHLEY", width=35)
+        self.isuse_smu.whenToggled=self.smu_toggled
+        self.nextrely -= 1
+        self.smu = self.add(npyscreen.TitleText, name = "KEITHLEY:", value="10", relx=40, width=35,
+            editable=False,hidden=True,)
+
+        self.isuse_kikusui = self.add(npyscreen.CheckBox, value = False, name="Use Kikusui", width=35)
+        self.isuse_kikusui.whenToggled=self.kikusui_toggled
+        self.nextrely -= 1
+        self.kikusui = self.add(npyscreen.TitleText, name = "Kikusui:", value="10", relx=40, width=35,
             editable=False,hidden=True,)
 
         self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use Ser-I2C", width=35)
@@ -98,19 +111,33 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             value="27.0 oC", editable=False,relx=40)
         self.processing = self.add(npyscreen.TitleFixedText, name = "In process:",
             value="---",editable=False )
+
         self.shell = self.add(npyscreen.MultiLineEdit, scroll_end=True, value = ">>>\n", name="log:",
             multiline=True, editable=False)
 
         self.dmm2_toggled()
+        self.smu_toggled()
+        self.kikusui_toggled()
         self.serial_toggled()
         self.email_toggled()
-        
 
     def dmm2_toggled(self):
         self.dmm2.editable=self.isuse_dmm2.value
         self.dmm2.hidden = not self.isuse_dmm2.value
         self.dmm2.update()
 #        self.shellResponse( "toggled, "+str(self.isuse_dmm2.value))
+
+    def smu_toggled(self):
+        self.smu.editable=self.isuse_smu.value
+        self.smu.hidden = not self.isuse_smu.value
+        self.smu.update()
+#        self.shellResponse( "toggled, "+str(self.isuse_smu.value))
+
+    def kikusui_toggled(self):
+        self.kikusui.editable=self.isuse_kikusui.value
+        self.kikusui.hidden = not self.isuse_kikusui.value
+        self.kikusui.update()
+#        self.shellResponse( "toggled, "+str(self.isuse_kikusui.value))
 
     def serial_toggled(self):
         self.serial.editable=self.isuse_serial.value
@@ -142,7 +169,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.display()
         time.sleep(1)
         self.exit_application()
-    
+
     def on_ok(self):
 #        if self.TCrun:
 #            self.shellResponse( "ok while TCrun: do nothing")
@@ -177,7 +204,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #        self.outfile.write( os.environ['COMPUTERNAME']+"\n" )
         self.outfile.write( socket.gethostname()+"\n" )
         self.outfile.write( monthname.monthname()+"\\"+todaydetail.strftime("%H.%M.%S")+".chamber.csv"+"\n" )
-        
+
         self.logfile=open(filename+".log",'a')
 
         try:
@@ -207,7 +234,6 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.shellResponse("no SAM3U I2C connected")
 
         self.shellResponse( self.uli2c )
-            
         self.shellResponse(self.cypress)
 
         try:
@@ -226,21 +252,44 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.logfile.write( str( self.uli2c )+"\n" )
         self.logfile.write(str(chan0)+'\n')
         self.logfile.write(str(chan1)+'\n')
+
+        self.E3640A = instr_local.dummy()
+        self.Chamber = instr_local.dummy()
+        self.A34401A = instr_local.dummy()
         try:
             self.E3640A = instr_local.powersupply(rm,self.psu.get_value())
             self.Chamber = instr_local.chamber(rm,self.chamber.get_value(),self.isctrl_chamber.value)
             self.A34401A = instr_local.multimeter(rm,self.dmm1.get_value(),self.isUSB_dmm1.value)
-            self.A34970A = instr_local.multimeter2(rm,self.dmm2.get_value(),self.isuse_dmm2.value)
-            self.mbedI2C = instr_local.serial_i2c(rm,self.serial.get_value(),self.isuse_serial.value)
         except:
-            self.E3640A = instr_local.dummy()
-            self.Chamber = instr_local.dummy()
-            self.A34401A = instr_local.dummy()
-            self.A34970A = instr_local.dummy()
-            self.mbedI2C = instr_local.dummy()
             npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.logfile.write("=-=-=-=-= using dummy instruments =-=-=-=-=\n")
-        self.E3640A.output(True)
+        else:
+            self.E3640A.output(True)
+
+        self.A34970A = instr_local.dummy()
+        if self.isuse_dmm2.value:
+            try:
+                self.A34970A = instr_local.multimeter2(rm,self.dmm2.get_value(),self.isuse_dmm2.value)
+            except:
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+
+        self.K2400 = instr_local.dummy()
+        if self.isuse_smu.value:
+            try:
+                self.K2400 = instr_local.sourcemeter(rm,self.smu.get_value(),self.isuse_smu.value)
+            except:
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+#            if self.isuse_kikusui.value:
+#                self.PLZ164 = instr_local.sourcemeter(rm,self.kikusui.get_value(),self.isuse_kikusui.value)
+
+        if self.isuse_serial.value:
+            try:
+                self.mbedI2C = instr_local.serial_i2c(self.serial.get_value(),self.isuse_serial.value)
+            except:
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+        else:
+            self.mbedI2C = instr_local.dummy()
+
         
         scr = open(os.path.join(self.scrfilename.get_value()), 'r')
         script = scr.read()
@@ -258,7 +307,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.E3640A.disconnect(lib)
         self.Chamber.disconnect(lib)
         self.A34401A.disconnect(lib)
-        self.A34970A.disconnect(lib)
+        if self.isuse_dmm2.value:
+            self.A34970A.disconnect(lib)
         info=(socket.gethostname(),csvname,time_finished)
         try:
             self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
@@ -279,7 +329,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             subject = "[ LAB ] tempctrl finished"
             body = "Temerature Control and measurement finished on "+machinename+" at "+finished+".\n"\
                     +"outputs are "+outfile+" and "+logfile+""
-            
+
             msg['From'] = sender
             msg['To'] = sender
             msg['Subject'] = subject
@@ -324,7 +374,11 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.logfile.write( 'sample triggered')
         self.shellResponse( 'sample triggered')
         current,target,absolute,hoge = self.Chamber.getTemp()
-        read=",,,"+current+","+str( self.E3640A.read())+","+str( self.A34401A.sample())+","+str( self.A34970A.sample())
+        read=",,,"+current+","+str( self.E3640A.read())+","+str( self.A34401A.sample())
+        if self.isuse_dmm2.value:
+            read += ","+str( self.A34970A.sample())
+        if self.isuse_smu.value:
+            read += ","+str( self.K2400.sample())
         self.outfile.write(read+"\n")
         return 0
 
@@ -433,7 +487,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
         self.logfile.write( 'i2c slave address set: 0x%02X of channel s%d\n' %(baseaddr, self.mbedI2C.getChannel()))
         pass
-        
+
     def _serialregister(self,argument):
         self.processing.value="SREG"+str(argument)
         i2creg,i2cdata=argument.split('=')
@@ -444,7 +498,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shellResponse( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
         self.outfile.write( 'channel s%d,reg%02Xh =, 0x%02X\n' %( self.mbedI2C.getChannel(), i2creg, i2cdata ))
         pass
-        
+
     def _serialchannel(self,channel):
         self.processing.value="SCHAN"+str(channel)
         self.logfile.write( 'set channel to s'+str(channel)+')')
@@ -458,7 +512,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shellResponse( 'set channels(@'+channels.replace('+',',')+')')
         self.A34970A.setChannel('(@'+channels.replace('+',',')+')')
         return 0
-    
+
     def _for(self,argument=1):
 #        self.isInLoop.append(True)
         self.logfile.write( str(self.isInLoop) )
@@ -481,15 +535,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 
             self.logfile.write( 'end of loop')
         return 0
-    
 
 if __name__ == '__main__':
     TC = TempCtrl()
     try:
         TC.run()
     except:
-        npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+        npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
     else:
         sys.stdout = sys.__stdout__
-        raw_input("\t -------- measurement finished (Enter key to exit) --------\n\n\n\n\n\n\n\n\n\n\n")
+        raw_input("\t -------- measurement finished (Press RETURN key to exit) --------\n\n\n\n\n\n\n\n\n\n\n")
 
