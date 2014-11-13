@@ -47,7 +47,7 @@ class powersupply(object):
             visa.VisaLibrary.close(visalib, self.PSU.session)
         except:
             pass
-        
+
     def output(self,on=False):
         if on:
             self.PSU.write('OUTPut 1')
@@ -149,7 +149,7 @@ class sourcemeter(object):
                         self.SMU.write(':SENS:VOLT:RANG %f' % voltage)
                     else:
                         self.SMU.write(':SENS:VOLT:DC:RANGE:AUTO 1')
-    
+
                 elif (mode == 'source'):
                     if (voltage != 'auto'):
                         self.SMU.write(":SOUR:FUNC VOLT")
@@ -157,10 +157,10 @@ class sourcemeter(object):
                         self.SMU.write(":SOUR:VOLT:RANG %f"%(voltage))
                     else:
                         self.SMU.write(':SOUR:VOLT:DC:RANGE:AUTO 1')
-    
+
                 else:
                     raise Exception('Invalid Mode Selection ("source" or "sense")')
-    
+
             else:
                 raise Exception("Invalid channel selection CH{0}" .format(channel))
 
@@ -173,7 +173,7 @@ class sourcemeter(object):
                         self.SMU.write(':SENS:CURR:RANG %f' % current)
                     else:
                         self.SMU.write(':SENS:CURR:DC:RANGE:AUTO 1')
-    
+
                 elif (mode == 'source'):
                     if (current != 'auto'):
                         self.SMU.write(":SOUR:FUNC CURR")
@@ -181,10 +181,10 @@ class sourcemeter(object):
                         self.SMU.write(":SOUR:CURR:RANG %f"%(current) )
                     else:
                         self.SMU.write(':SOUR:CURR:DC:RANGE:AUTO 1')
-    
+
                 else:
                     raise Exception('Invalid Mode Selection ("source" or "sense")')
-    
+
             else:
                 raise Exception("Invalid channel selection CH{0}" .format(channel))
 
@@ -194,7 +194,7 @@ class sourcemeter(object):
                 pass
             elif mode == "current":
                 pass
-        
+
     # Read V
     def ReadVoltage (self, samples = 1, channel = 1, avg_mode = 'MOV', filt = 'ON', nplc = 1):
         if self.isUse == True:
@@ -205,9 +205,9 @@ class sourcemeter(object):
                 self.SMU.write(":FUNC 'VOLT:DC';:VOLT:NPLC %f;:AVER:TCON %s;COUN %d;STAT %s"%(nplc, avg_mode, samples, flit))
                 self.SMU.write(":FORM:ELEM:SENS VOLT")
                 self.SMU.write(":INIT")
-    
+
                 self.SMU.ask('*OPC?')
-    
+
                 return float(self.SMU.ask(':SENSE:DATA:LAT?'))
             else:
                 raise Exception("Invalid channel selection CH{0}" .format(channel))
@@ -222,11 +222,11 @@ class sourcemeter(object):
                 self.SMU.write(":FUNC 'CURR:DC';:CURR:NPLC %f;:AVER:TCON %s;COUN %d;STAT %s"%(nplc, avg_mode, samples, filt))
                 self.SMU.write(":FORMAT:ELEMENTS:SENSE CURR")
                 self.SMU.write(":INIT")
-    
+
                 self.SMU.ask('*OPC?')
-    
+
                 return float(self.SMU.ask(':SENSE:DATA:LAT?'))
-    
+
             else:
                 raise Exception("Invalid channel selection CH{0}" .format(channel))
 
@@ -235,17 +235,17 @@ class sourcemeter(object):
         if self.isUse == True:
             if (channel == 1):
                 self.SMU.write(':DISP:DIG %d' % int(digits) )
-    
+
                 return
-    
+
             else:
                 raise Exception("Invalid channel selection CH{0}" .format(channel))
-    
+
         def error_query(self):
             ''' the error queue hold error and status messages
             '''
             print self.SMU.ask('SYST:ERR?')
-        
+
 class multimeter(object):
     VOLTMETER=""
     rm=""
@@ -284,7 +284,7 @@ class multimeter2(object):
         if self.isUse == True:
             self.VOLTMETER2.write('SENS:FUNC "VOLT:DC", '+self.channels    )
             self.VOLTMETER2.write('INP:IMP:AUTO ON,'+self.channels    )#
-    
+
             self.VOLTMETER2.write('SENS:VOLT:DC:NPLC 2, '+self.channels    )
             self.VOLTMETER2.write('SENS:VOLT:DC:RANG:AUTO ON, '+self.channels    )
             self.VOLTMETER2.write('TRIG:SOUR IMM')
@@ -333,11 +333,11 @@ class chamber(object):
     def setTemp(self,temp):
         read=self.CHAMBER.ask("TEMP,s"+temp)
         return read
-        
+
     def close(self):
         self.CHAMBER.ask("MODE, STANDBY")
         return True
-    
+
     def disconnect(self,visalib):
         self.close()
         visa.VisaLibrary.gpib_control_ren(visalib, self.CHAMBER.session,6)
@@ -353,7 +353,7 @@ class serial_i2c(object):
         self.isUse = isuse
         
         if self.isUse == True:
-            self.I2C=serial2i2c(port,baud)
+            self.I2C=serial2i2c.serial2i2c(port,baud)
         pass
         
     def setBase(self, channel=0, base=0x90):
@@ -391,11 +391,11 @@ class serial_i2c(object):
         if self.isUse == True:
             channel = self.Channel
         return channel
-        
+
 class dummy(object):
     def __init__(self):
         pass 
-    
+
     def SetVoltage(self,volt):
         pass
 
@@ -416,10 +416,10 @@ class dummy(object):
 
     def setChannel(self,chanlist):
         pass
-        
+
     def getChannel(self):
         return -1
-        
+
     def setBase(self,channel,base):
         pass
 
@@ -431,13 +431,13 @@ class dummy(object):
 
     def setTemp(self,temp):
         return "dummy"
-        
+
     def reset (self):
         pass
-    
+
 #    def sense_4W(self,on=False):
 #        pass
-        
+
     def SetVoltageLimit (self, voltage, channel = 1):
         pass
 
@@ -461,4 +461,4 @@ class dummy(object):
 
     def SetCurrent (self, current, channel = 1):
         pass
-        
+
