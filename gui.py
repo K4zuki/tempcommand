@@ -209,6 +209,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 
         try:
 #            self.cypress = usbio.usbio.autodetect()
+            usbio.setup()
             self.cypress = usbio.autodetect()
         except :
 #            npyscreen.notify_confirm(str(self.cypress),title="REPORT",editw=1)
@@ -216,6 +217,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.i2c =False
             self.cypress=-99
             self.shellResponse("no Cypress I2C connected")
+            self.logfile.write("failed to load Cypress I2C\n")
         else:
 #            self.i2c  = usbio.usbio.I2C(self.cypress, 0x90)#0x48/7bit=0x90/8bit
             self.i2c  = usbio.I2C(self.cypress, 0x90)#0x48/7bit=0x90/8bit
