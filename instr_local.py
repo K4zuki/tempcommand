@@ -62,177 +62,189 @@ class sourcemeter(object):
     rm=False
     setvolt=3.7
     setcurrent=0.0
-    def __init__(self,resourcemanager,gpib):
-        try:
+    isUse=False
+    def __init__(self,resourcemanager,gpib,isuse=False):
+        self.isUse=isuse
+        if self.isUse == True:
             self.rm=resourcemanager
             self.SMU = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
             self.reset()
             self.SMU.write(':DISP:DIG %d' % int(digits) )
-        except:
-            pass
 
     def disconnect(self,visalib):
-        try:
+        if self.isUse == True:
             visa.VisaLibrary.gpib_control_ren(visalib, self.SMU.session,6)
             visa.VisaLibrary.close(visalib, self.SMU.session)
-        except:
-            pass
 
     def reset (self):
-        self.SMU.write('*RST')
+        if self.isUse == True:
+            self.SMU.write('*RST')
 
     def output_enable (self, channel = 1):
-        if (channel == 1):
-            self.SMU.write(':OUTP:STAT 1;:INIT')
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+        if self.isUse == True:
+            if (channel == 1):
+                self.SMU.write(':OUTP:STAT 1;:INIT')
+            else:
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     def output_disable (self, channel = 1):
-        self.SMU.write(':OUTP:STAT 0')
-        if (channel != 1):
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+        if self.isUse == True:
+            self.SMU.write(':OUTP:STAT 0')
+            if (channel != 1):
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     def output(self,on=False):
-        if on:
-            self.output_enable(1)
-        else:
-            self.output_disable(1)
+        if self.isUse == True:
+            if on:
+                self.output_enable(1)
+            else:
+                self.output_disable(1)
 
     # Set Out V
     def SetVoltage (self, voltage, channel = 1):
-        if (channel == 1):
-            self.SMU.write(":SOUR:FUNC VOLT")
-            self.SMU.write(":SOUR:VOLT:MODE FIX")
-            self.SMU.write(":SOUR:VOLT %f"%(voltage))
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+        if self.isUse == True:
+            if (channel == 1):
+                self.SMU.write(":SOUR:FUNC VOLT")
+                self.SMU.write(":SOUR:VOLT:MODE FIX")
+                self.SMU.write(":SOUR:VOLT %f"%(voltage))
+            else:
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     # Set Out I
     def SetCurrent (self, current, channel = 1):
-        if (channel == 1):
-            self.SMU.write(":SOUR:FUNC CURR")
-            self.SMU.write(":SOUR:CURR:MODE FIX")
-            self.SMU.write(":SOUR:CURR %f"%(current))
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+        if self.isUse == True:
+            if (channel == 1):
+                self.SMU.write(":SOUR:FUNC CURR")
+                self.SMU.write(":SOUR:CURR:MODE FIX")
+                self.SMU.write(":SOUR:CURR %f"%(current))
+            else:
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     # Set Out V Limit
     def SetVoltageLimit (self, voltage, channel = 1):
-        if (channel == 1):
-            self.SMU.write(":SOUR:FUNC CURR")
-            self.SMU.write(":SOUR:CURR:MODE FIX")
-            self.SMU.write(":SENS:VOLT:DC:PROT:LEV %f"%(voltage))
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+        if self.isUse == True:
+            if (channel == 1):
+                self.SMU.write(":SOUR:FUNC CURR")
+                self.SMU.write(":SOUR:CURR:MODE FIX")
+                self.SMU.write(":SENS:VOLT:DC:PROT:LEV %f"%(voltage))
+            else:
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     # Set Out I Limit
     def SetCurrentLimit (self, current, channel = 1):
-        if (channel == 1):
-            self.SMU.write(":SOUR:FUNC VOLT")
-            self.SMU.write(":SOUR:VOLT:MODE FIX")
-            self.SMU.write(":SENS:CURR:DC:PROT:LEV %f"%(current) )
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+        if self.isUse == True:
+            if (channel == 1):
+                self.SMU.write(":SOUR:FUNC VOLT")
+                self.SMU.write(":SOUR:VOLT:MODE FIX")
+                self.SMU.write(":SENS:CURR:DC:PROT:LEV %f"%(current) )
+            else:
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     # Set V Range
     def SetVoltageRange (self, voltage, channel = 1, mode = 'source'):
-        if (channel == 1):
-            if (mode == 'sense'):
-                if (voltage != 'auto'):
-                    self.SMU.write(':SENS:VOLT:RANG %f' % voltage)
+        if self.isUse == True:
+            if (channel == 1):
+                if (mode == 'sense'):
+                    if (voltage != 'auto'):
+                        self.SMU.write(':SENS:VOLT:RANG %f' % voltage)
+                    else:
+                        self.SMU.write(':SENS:VOLT:DC:RANGE:AUTO 1')
+    
+                elif (mode == 'source'):
+                    if (voltage != 'auto'):
+                        self.SMU.write(":SOUR:FUNC VOLT")
+                        self.SMU.write(":SOUR:VOLT:MODE FIX")
+                        self.SMU.write(":SOUR:VOLT:RANG %f"%(voltage))
+                    else:
+                        self.SMU.write(':SOUR:VOLT:DC:RANGE:AUTO 1')
+    
                 else:
-                    self.SMU.write(':SENS:VOLT:DC:RANGE:AUTO 1')
-
-            elif (mode == 'source'):
-                if (voltage != 'auto'):
-                    self.SMU.write(":SOUR:FUNC VOLT")
-                    self.SMU.write(":SOUR:VOLT:MODE FIX")
-                    self.SMU.write(":SOUR:VOLT:RANG %f"%(voltage))
-                else:
-                    self.SMU.write(':SOUR:VOLT:DC:RANGE:AUTO 1')
-
+                    raise Exception('Invalid Mode Selection ("source" or "sense")')
+    
             else:
-                raise Exception('Invalid Mode Selection ("source" or "sense")')
-
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     # Set I Range
     def SetCurrentRange (self, current, channel = 1, mode = 'source'):
-        if (channel == 1):
-            if (mode == 'sense'):
-                if (current != 'auto'):
-                    self.SMU.write(':SENS:CURR:RANG %f' % current)
+        if self.isUse == True:
+            if (channel == 1):
+                if (mode == 'sense'):
+                    if (current != 'auto'):
+                        self.SMU.write(':SENS:CURR:RANG %f' % current)
+                    else:
+                        self.SMU.write(':SENS:CURR:DC:RANGE:AUTO 1')
+    
+                elif (mode == 'source'):
+                    if (current != 'auto'):
+                        self.SMU.write(":SOUR:FUNC CURR")
+                        self.SMU.write(":SOUR:CURR:MODE FIX")
+                        self.SMU.write(":SOUR:CURR:RANG %f"%(current) )
+                    else:
+                        self.SMU.write(':SOUR:CURR:DC:RANGE:AUTO 1')
+    
                 else:
-                    self.SMU.write(':SENS:CURR:DC:RANGE:AUTO 1')
-
-            elif (mode == 'source'):
-                if (current != 'auto'):
-                    self.SMU.write(":SOUR:FUNC CURR")
-                    self.SMU.write(":SOUR:CURR:MODE FIX")
-                    self.SMU.write(":SOUR:CURR:RANG %f"%(current) )
-                else:
-                    self.SMU.write(':SOUR:CURR:DC:RANGE:AUTO 1')
-
+                    raise Exception('Invalid Mode Selection ("source" or "sense")')
+    
             else:
-                raise Exception('Invalid Mode Selection ("source" or "sense")')
-
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     def sample(self,mode="voltage"):
-        if mode == "voltage":
-            pass
-        elif mode == "current":
-            pass
+        if self.isUse == True:
+            if mode == "voltage":
+                pass
+            elif mode == "current":
+                pass
         
     # Read V
     def ReadVoltage (self, samples = 1, channel = 1, avg_mode = 'MOV', filt = 'ON', nplc = 1):
-        if (channel == 1):
-            self.SMU.write("*CLS")
-            self.SMU.write(":ABOR")
-            self.SMU.write(":ARM:COUN 1;SOUR TIM")
-            self.SMU.write(":FUNC 'VOLT:DC';:VOLT:NPLC %f;:AVER:TCON %s;COUN %d;STAT %s"%(nplc, avg_mode, samples, flit))
-            self.SMU.write(":FORM:ELEM:SENS VOLT")
-            self.SMU.write(":INIT")
-
-            self.SMU.ask('*OPC?')
-
-            return float(self.SMU.ask(':SENSE:DATA:LAT?'))
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+        if self.isUse == True:
+            if (channel == 1):
+                self.SMU.write("*CLS")
+                self.SMU.write(":ABOR")
+                self.SMU.write(":ARM:COUN 1;SOUR TIM")
+                self.SMU.write(":FUNC 'VOLT:DC';:VOLT:NPLC %f;:AVER:TCON %s;COUN %d;STAT %s"%(nplc, avg_mode, samples, flit))
+                self.SMU.write(":FORM:ELEM:SENS VOLT")
+                self.SMU.write(":INIT")
+    
+                self.SMU.ask('*OPC?')
+    
+                return float(self.SMU.ask(':SENSE:DATA:LAT?'))
+            else:
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     # Read I
     def ReadCurrent (self, samples = 1, channel = 1, avg_mode = 'MOV', filt = 'ON', nplc = 1):
-        if (channel == 1):
-            self.SMU.write("*CLS")
-            self.SMU.write(":ABOR")
-            self.SMU.write(":ARM:COUN 1;SOUR TIM")
-            self.SMU.write(":FUNC 'CURR:DC';:CURR:NPLC %f;:AVER:TCON %s;COUN %d;STAT %s"%(nplc, avg_mode, samples, filt))
-            self.SMU.write(":FORMAT:ELEMENTS:SENSE CURR")
-            self.SMU.write(":INIT")
-
-            self.SMU.ask('*OPC?')
-
-            return float(self.SMU.ask(':SENSE:DATA:LAT?'))
-
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
+        if self.isUse == True:
+            if (channel == 1):
+                self.SMU.write("*CLS")
+                self.SMU.write(":ABOR")
+                self.SMU.write(":ARM:COUN 1;SOUR TIM")
+                self.SMU.write(":FUNC 'CURR:DC';:CURR:NPLC %f;:AVER:TCON %s;COUN %d;STAT %s"%(nplc, avg_mode, samples, filt))
+                self.SMU.write(":FORMAT:ELEMENTS:SENSE CURR")
+                self.SMU.write(":INIT")
+    
+                self.SMU.ask('*OPC?')
+    
+                return float(self.SMU.ask(':SENSE:DATA:LAT?'))
+    
+            else:
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
 
     #Set I range for the display
     def set_range_display (self, digits = 7, channel = 1):
-        if (channel == 1):
-            self.SMU.write(':DISP:DIG %d' % int(digits) )
-
-            return
-
-        else:
-            raise Exception("Invalid channel selection CH{0}" .format(channel))
-
-    def error_query(self):
-        ''' the error queue hold error and status messages
-        '''
-        print self.SMU.ask('SYST:ERR?')
+        if self.isUse == True:
+            if (channel == 1):
+                self.SMU.write(':DISP:DIG %d' % int(digits) )
+    
+                return
+    
+            else:
+                raise Exception("Invalid channel selection CH{0}" .format(channel))
+    
+        def error_query(self):
+            ''' the error queue hold error and status messages
+            '''
+            print self.SMU.ask('SYST:ERR?')
         
 class multimeter(object):
     VOLTMETER=""
