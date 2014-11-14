@@ -24,7 +24,7 @@ except:
 class TempCtrl(npyscreen.NPSAppManaged):
     def onStart(self):
         self.mainform=self.addForm("MAIN", MainForm, name="\tTemerature Control and measurement\t",
-            color="GOOD" ,  minimum_columns=100)
+            color="GOOD" , minimum_lines=35, minimum_columns=100)
 
 class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #    TCrun=False
