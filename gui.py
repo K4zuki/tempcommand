@@ -23,7 +23,8 @@ except:
 
 class TempCtrl(npyscreen.NPSAppManaged):
     def onStart(self):
-        self.mainform=self.addForm("MAIN", MainForm, name="\tTemerature Control and measurement\t",color="GOOD" , )
+        self.mainform=self.addForm("MAIN", MainForm, name="\tTemerature Control and measurement\t",
+            color="GOOD" ,  minimum_columns=100)
 
 class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #    TCrun=False
@@ -86,6 +87,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.isuse_kikusui = self.add(npyscreen.CheckBox, value = False, name="Use Kikusui", width=35)
         self.isuse_kikusui.whenToggled=self.kikusui_toggled
         self.nextrely -= 1
+        self.isUSB_kikusui = self.add(npyscreen.CheckBox, value = True, name="Use USB", relx=40, width=35,
+            editable=False,hidden=True,)
         self.kikusui = self.add(npyscreen.TitleText, name = "Kikusui:", value="10", relx=40, width=35,
             editable=False,hidden=True,)
 
@@ -95,13 +98,12 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com3",relx=40,width=35,
             editable=False,hidden=True,)
 
-        self.isuse_email = self.add(npyscreen.CheckBox, value = False, name="Use email", width=15 )
+        self.isuse_email = self.add(npyscreen.CheckBox, value = False, name="Use email", width=35 )
         self.isuse_email.whenToggled=self.email_toggled
         self.nextrely -= 1
-        self.sendto = self.add(npyscreen.TitleFilename, name = "User:", width=40, relx=20,
+        self.sendto = self.add(npyscreen.TitleFilename, name = "User:", width=50, relx=40,
             editable=False,hidden=True, value="user@example.com")
-        self.nextrely -= 1
-        self.sendsrv = self.add(npyscreen.TitleFilename, name = "SMTP:",width=40, relx=60,
+        self.sendsrv = self.add(npyscreen.TitleFilename, name = "SMTP:",width=50, relx=40,
             editable=False,hidden=True, value="smtp.example.com")
 
         self.Tcurrent = self.add(npyscreen.TitleFixedText,  name = "current temp:",
@@ -134,9 +136,12 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #        self.shellResponse( "toggled, "+str(self.isuse_smu.value))
 
     def kikusui_toggled(self):
-        self.kikusui.editable=self.isuse_kikusui.value
+        self.kikusui.editable = self.isuse_kikusui.value
         self.kikusui.hidden = not self.isuse_kikusui.value
+        self.isUSB_kikusui.editable = self.isuse_kikusui.value
+        self.isUSB_kikusui.hidden = not self.isuse_kikusui.value
         self.kikusui.update()
+        self.isUSB_kikusui.update()
 #        self.shellResponse( "toggled, "+str(self.isuse_kikusui.value))
 
     def serial_toggled(self):
@@ -280,9 +285,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             try:
                 self.K2400 = instr_local.sourcemeter(rm,self.smu.get_value(),self.isuse_smu.value)
             except:
-                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
-#            if self.isuse_kikusui.value:
-#                self.PLZ164 = instr_local.sourcemeter(rm,self.kikusui.get_value(),self.isuse_kikusui.value)
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
+
+        self.PLZ164 = instr_local.dummy()
+        if self.isuse_kikusui.value:
+            try:
+                self.PLZ164 = instr_local.kikusui(rm,self.kikusui.get_value(),self.isUSB_kikusui.value,self.isuse_kikusui.value)
+            except:
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
 
         if self.isuse_serial.value:
             try:
@@ -311,11 +321,15 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.A34401A.disconnect(lib)
         if self.isuse_dmm2.value:
             self.A34970A.disconnect(lib)
+        if self.isuse_smu.value:
+            self.K2400.disconnect(lib)
+        if self.isuse_kikusui.value:
+            self.PLZ164.disconnect(lib)
         info=(socket.gethostname(),csvname,time_finished)
         try:
             self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
         except:
-            npyscreen.notify_confirm(str(sys.exc_info()[2].tb_lineno)+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
 
         self.exit_application()
         
@@ -414,8 +428,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         return 0
 
     def _kikusui(self,current=0.001):
-        self.logfile.write( 'current set: '+current+' A')
-        self.shellResponse( 'current set: '+current+' A')
+        self.logfile.write( 'current set: '+str(current)+' A')
+        self.shellResponse( 'current set: '+str(current)+' A')
         return 0
     
     def _base(self,baseaddr=0x90):
@@ -543,7 +557,7 @@ if __name__ == '__main__':
     try:
         TC.run()
     except:
-        npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+        npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
     else:
         sys.stdout = sys.__stdout__
         raw_input("\t -------- measurement finished (Press RETURN key to exit) --------\n\n\n\n\n\n\n\n\n\n\n")
