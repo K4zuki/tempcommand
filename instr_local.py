@@ -57,6 +57,48 @@ class powersupply(object):
     def read(self):
         return self.setvolt
 
+class kikusui(object):
+    PLZ=False
+    rm=False
+    setcurrent=0.0
+    isUse=False
+
+    def __init__(self,resourcemanager,gpib,isUSB=True,isuse=False):
+        self.isUse=isuse
+        if self.isUse == True:
+            self.rm=resourcemanager
+            if isUSB:
+                self.PLZ = self.rm.get_instrument("USB0::0x0957::0x1A07::"+gpib+"::INSTR")#USB0::0x0957::0x1A07::SN????????::INSTR
+            else:
+                self.PLZ = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
+
+    def SetCurrent(self,current):
+        if self.isUse == True:
+            self.PLZ.write("CURRent:LEVel:IMMediate:AMPLitude %g" % current)
+
+    def output(self,on=False):
+        if self.isUse == True:
+            if on:
+                self.PLZ.write("OUTPut:STATe:IMMediate ON")
+            else:
+                self.PLZ.write("OUTPut:STATe:IMMediate OFF")
+
+    def disconnect(self,visalib):
+        if self.isUse == True:
+            visa.VisaLibrary.gpib_control_ren(visalib, self.PLZ.session,6)
+            visa.VisaLibrary.close(visalib, self.PLZ.session)
+        return True
+
+    def SetCurrentRange (self, range='LOW'):
+        if self.isUse == True:
+            self.PLZ.write(':CURR:RANG %s' % irange)
+
+    def ReadVoltage (self):
+        return "dummy"
+
+    def ReadCurrent (self):
+        return "dummy"
+
 class sourcemeter(object):
     SMU=False
     rm=False
