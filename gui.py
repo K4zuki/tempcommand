@@ -24,7 +24,7 @@ except:
 class TempCtrl(npyscreen.NPSAppManaged):
     def onStart(self):
         self.mainform=self.addForm("MAIN", MainForm, name="\tTemerature Control and measurement\t",
-            color="GOOD" , minimum_lines=35, minimum_columns=100)
+            color="GOOD" )#, minimum_lines=35, minimum_columns=100)
 
 class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #    TCrun=False
@@ -61,7 +61,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
 #            value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
-            value="W:\\Tokyo\\Data\\DEsign Center\\Nori2\\Evaluation\\")
+            value="W:\\Tokyo\\Data\\Design Center\\Nori2\\Evaluation\\")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
 
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16",width=35)
