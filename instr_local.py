@@ -416,26 +416,36 @@ class serial_i2c(object):
     def setBase(self, channel=0, base=0x90):
         if self.isUse == True:
             self.Slave[channel]=base
-        pass
 
-    def regWrite(self, reg=0x00, data=0x00):
+    def getBase(self, channel=0):
         if self.isUse == True:
-            slave=self.I2C.convert_hex_to_ascii2(self.Slave[self.Channel],mask=0xa0)
+            return self.Slave[channel]
+
+    def regWrite(self, slave=0x90, reg=0x00, data=0x00):
+#        packet=['S','P']
+        packet=[]
+        if self.isUse == True:
+            slave=self.I2C.convert_hex_to_ascii2(slave,mask=0xa0)
             reg=self.I2C.convert_hex_to_ascii2(reg,mask=0xb0)
             data=self.I2C.convert_hex_to_ascii2(data,mask=0xc0)
             length=self.I2C.convert_hex_to_ascii2(len(reg)/2+len(data)/2,mask=0xd0)
+            
+            slave.reverse()
+            length.reverse()
+            reg.reverse()
+            data.reverse()
+    
+            packet.extend(slave)
+            packet.extend(length)
+            packet.extend(reg)
+            packet.extend(data)
+    
+            packet.insert(0,'S')
+            packet.append('P')
+            for hoge in packet:
+                self.I2C.raw_write(hoge)
 
-            self.I2C.start()
-            for hoge in slave:
-                self.I2C.raw_write()
-            for hoge in length:
-                self.I2C.raw_write()
-            for hoge in reg:
-                self.I2C.raw_write()
-            for hoge in data:
-                self.I2C.raw_write()
-            self.I2C.stop()
-        pass
+        return packet
         
     def setChannel(self, channel=0):
         if self.isUse == True:
@@ -479,6 +489,9 @@ class dummy(object):
 
     def setBase(self,channel,base):
         pass
+
+    def getBase(self, channel=0):
+        return 0x00
 
     def regWrite(self,reg,data):
         pass
