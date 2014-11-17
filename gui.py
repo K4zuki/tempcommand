@@ -61,18 +61,20 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
 #            value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
-            value="W:\\Tokyo\\Data\\Design Center\\Nori2\\Evaluation\\")
+            value="W:\\Tokyo\\Data\\Design Center\\Nori2\\Evaluation\\OL1_02.txt")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
 
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16",width=35)
         self.nextrely -= 1
-        self.isctrl_chamber = self.add(npyscreen.CheckBox, value = True, name="Control Temp",relx=40, width=35)
+        self.isctrl_chamber = self.add(npyscreen.CheckBox, value = True, 
+            name="Control Temp",relx=40, width=35)
 
         self.dmm1 = self.add(npyscreen.TitleText, name = "Multimeter1:", value="2", width=35)
         self.nextrely -= 1
         self.isUSB_dmm1= self.add(npyscreen.CheckBox, value = False, name="34461A", relx=40, width=35)
 
-        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = True, name="Use DMM2", width=35)
+#        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = True, name="Use DMM2", width=35)
+        self.isuse_dmm2 = self.add(npyscreen.CheckBox, value = False, name="Use DMM2", width=35)
         self.isuse_dmm2.whenToggled=self.dmm2_toggled
         self.nextrely -= 1
         self.dmm2 = self.add(npyscreen.TitleText, name = "Multimeter2:", value="10", relx=40, width=35,
@@ -92,10 +94,11 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.kikusui = self.add(npyscreen.TitleText, name = "Kikusui:", value="10", relx=40, width=35,
             editable=False,hidden=True,)
 
-        self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use Ser-I2C", width=35)
+#        self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use Ser-I2C", width=35)
+        self.isuse_serial = self.add(npyscreen.CheckBox, value = True, name="Use Ser-I2C", width=35)
         self.isuse_serial.whenToggled=self.serial_toggled
         self.nextrely -= 1
-        self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com99",relx=40,width=35,
+        self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com8",relx=40,width=35,
             editable=False,hidden=True,)
 
         self.isuse_email = self.add(npyscreen.CheckBox, value = False, name="Use email", width=35 )
@@ -218,7 +221,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.cypress = usbio.autodetect()
         except :
 #            npyscreen.notify_confirm(str(self.cypress),title="REPORT",editw=1)
-            npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+            npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
+                +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.i2c =False
             self.cypress=-99
             self.shellResponse("no Cypress I2C connected")
@@ -268,7 +272,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.Chamber = instr_local.chamber(rm,self.chamber.get_value(),self.isctrl_chamber.value)
             self.A34401A = instr_local.multimeter(rm,self.dmm1.get_value(),self.isUSB_dmm1.value)
         except:
-            npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+            npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
+                +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.logfile.write("=-=-=-=-= using dummy instruments =-=-=-=-=\n")
             self.logfile.write("E3640A: "+str(self.E3640A)+"\n")
             self.logfile.write("Chamber: "+str(self.Chamber)+"\n")
@@ -281,7 +286,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             try:
                 self.A34970A = instr_local.multimeter2(rm,self.dmm2.get_value(),self.isuse_dmm2.value)
             except:
-                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
+                    +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
                 self.logfile.write("A34970A: "+str(self.A34970A)+"\n")
 
         self.K2400 = instr_local.dummy()
@@ -289,26 +295,31 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             try:
                 self.K2400 = instr_local.sourcemeter(rm,self.smu.get_value(),self.isuse_smu.value)
             except:
-                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),
+                    title="ERROR REPORT",editw=1)
                 self.logfile.write("K2400: "+str(self.K2400)+"\n")
 
         self.PLZ164 = instr_local.dummy()
         if self.isuse_kikusui.value:
             try:
-                self.PLZ164 = instr_local.kikusui(rm,self.kikusui.get_value(),self.isUSB_kikusui.value,self.isuse_kikusui.value)
+                self.PLZ164 = instr_local.kikusui(rm,self.kikusui.get_value(),
+                    self.isUSB_kikusui.value,self.isuse_kikusui.value)
             except:
-                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),
+                    title="ERROR REPORT",editw=1)
                 self.logfile.write("PLZ164: "+str(self.PLZ164)+"\n")
 
         self.mbedI2C = instr_local.dummy()
         if self.isuse_serial.value:
             try:
-                self.mbedI2C = instr_local.serial_i2c(self.serial.get_value(),self.isuse_serial.value)
+                self.mbedI2C = instr_local.serial_i2c(self.serial.get_value(),isuse=self.isuse_serial.value)
             except:
-                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
+                    +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
                 self.logfile.write("mbedI2C: "+str(self.mbedI2C)+"\n")
 #        else:
 #            self.mbedI2C = instr_local.dummy()
+#        self.logfile.write("mbedI2C: "+str(self.mbedI2C)+"\n")
 
         
         scr = open(os.path.join(self.scrfilename.get_value()), 'r')
@@ -337,7 +348,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         try:
             self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
         except:
-                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
+                    +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
 
         self.exit_application()
         
@@ -383,7 +395,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.Tcurrent.value="    "+str(current)+" oC    >>>"
             diff=abs(float(current)-float(target))
             self.logfile.write ( current+","+target+","+absolute+","+hoge+","+str(diff)+"\n")
-            self.shellResponse ( str(i)+",\t current="+current+",\t target="+target+",\t limit="+absolute+","+hoge+",\t "+str(diff))
+            self.shellResponse ( str(i)+",\t current="+current+
+                                ",\t target="+target+",\t limit="+absolute+","+hoge+",\t "+str(diff))
             if diff < 0.2:
                 break
             time.sleep(10)#release code
@@ -411,7 +424,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shellResponse( 'suspend triggered')
 
         npyscreen.notify_confirm("\n\t\t-=-=-=-SUSPEND-=-=-=-\n"+\
-            "I would like more flexible popup which runs temp check in buckground but for now this is the solution as this works anyway..."
+            "I would like more flexible popup which runs temp check in buckground \
+            but for now this is the solution as this works anyway..."
             ,title="SUSPEND",editw=1)
 
         self.logfile.write( 'popup end')
@@ -500,35 +514,42 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             else:
                 self.uli2c[int(f)].write_register( ulireg, ulidata )
             self.outfile.write( 'channel u%d,reg%02Xh =, 0x%02X\n' %( int(f), ulireg, ulidata ))
-            self.shellResponse( 'channel = u%d, reg address = 0x%02X, data = 0x%02X'     %( int(f), ulireg, ulidata ))
-            self.logfile.write( 'channel = u%d, reg address = 0x%02X, data = 0x%02X\n'   %( int(f), ulireg, ulidata ))
+            self.shellResponse( 'channel = u%d, reg address = 0x%02X, data = 0x%02X'
+                %( int(f), ulireg, ulidata ))
+            self.logfile.write( 'channel = u%d, reg address = 0x%02X, data = 0x%02X\n'
+                %( int(f), ulireg, ulidata ))
         return 0
 
     def _serialbase(self, baseaddr=0x90):
-        baseaddr=int(baseaddr)
+#        baseaddr=int(baseaddr,16)
         self.processing.value="SBASE"+str(baseaddr)
-        self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
+        self.mbedI2C.setBase(self.mbedI2C.getChannel(),int(baseaddr,16))
+#        self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
         self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
-        self.logfile.write( 'i2c slave address set: 0x%02X of channel s%d\n' %(baseaddr, self.mbedI2C.getChannel()))
-        pass
+        self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr)+' of channel s%d'
+            %(self.mbedI2C.getChannel()))
+        return 0
 
     def _serialregister(self,argument):
         self.processing.value="SREG"+str(argument)
         i2creg,i2cdata=argument.split('=')
         i2creg= int(i2creg ,16)
         i2cdata= int(i2cdata ,16)
-        self.mbedI2C.regWrite(i2creg,i2cdata)
+        packet=self.mbedI2C.regWrite(self.mbedI2C.getBase(self.mbedI2C.getChannel()),i2creg,i2cdata)
         self.logfile.write( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
         self.shellResponse( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
-        self.outfile.write( 'channel s%d,reg%02Xh =, 0x%02X\n' %( self.mbedI2C.getChannel(), i2creg, i2cdata ))
-        pass
+        self.outfile.write( 'channel s%d,reg%02Xh =, 0x%02X\n' 
+            %( self.mbedI2C.getChannel(), i2creg, i2cdata ))
+        self.logfile.write(str(packet))
+        return 0
 
     def _serialchannel(self,channel):
         self.processing.value="SCHAN"+str(channel)
-        self.logfile.write( 'set channel to s'+str(channel)+')')
-        self.shellResponse( 'set channel to s'+str(channel)+')')
+        self.mbedI2C.setChannel(int(channel))
+        self.logfile.write( 'set channel to s'+str(channel))
+        self.shellResponse( 'set channel to s'+str(channel))
         self.outfile.write( 'I2C channel ,s%d\n' %( self.mbedI2C.getChannel()))
-        pass
+        return 0
 
     def _chanset(self,channels):
         self.processing.value="CHAN"+str(channels)
@@ -565,8 +586,10 @@ if __name__ == '__main__':
     try:
         TC.run()
     except:
-        npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
+        npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),
+            title="ERROR REPORT",editw=1)
     else:
         sys.stdout = sys.__stdout__
-        raw_input("\t -------- measurement finished (Press RETURN key to exit) --------\n\n\n\n\n\n\n\n\n\n\n")
+        raw_input("\t -------- measurement finished (Press RETURN key to exit) --------\
+                \n\n\n\n\n\n\n\n\n\n\n")
 
