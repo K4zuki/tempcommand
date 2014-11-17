@@ -24,22 +24,17 @@ class powersupply(object):
             self.PSU.write('INST P6V')
             self.PSU.write('CURR 1e0;:VOLT '+"3.7"+';')
         except:
+            raise
             pass
 
     def SetVoltage(self,volt):
-        try:
-            self.PSU.write('VOLT '+volt)
-            self.setvolt=volt
-            return True
-        except:
-            pass
+        self.PSU.write('VOLT '+volt)
+        self.setvolt=volt
+        return True
 
     def SetCurrent(self,current):
-        try:
-            self.PSU.write('CURR '+current)
-            return True
-        except:
-            pass
+        self.PSU.write('CURR '+current)
+        return True
 
     def disconnect(self,visalib):
         try:
@@ -67,10 +62,13 @@ class kikusui(object):
         self.isUse=isuse
         if self.isUse == True:
             self.rm=resourcemanager
-            if isUSB:
-                self.PLZ = self.rm.get_instrument("USB0::0x0957::0x1A07::"+gpib+"::INSTR")#USB0::0x0957::0x1A07::SN????????::INSTR
-            else:
-                self.PLZ = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
+            try:
+                if isUSB:
+                    self.PLZ = self.rm.get_instrument("USB0::0x0957::0x1A07::"+gpib+"::INSTR")#USB0::0x0957::0x1A07::SN????????::INSTR
+                else:
+                    self.PLZ = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
+            except:
+                raise
 
     def SetCurrent(self,current):
         if self.isUse == True:
@@ -91,7 +89,11 @@ class kikusui(object):
 
     def SetCurrentRange (self, range='LOW'):
         if self.isUse == True:
-            self.PLZ.write(':CURR:RANG %s' % irange)
+            self.PLZ.write(':CURR:RANG %s' % range)
+
+    def SetVoltageRange (self, range='LOW'):
+        self.instrument.ask(':VOLT:RANG %s' % range)
+        pass
 
     def ReadVoltage (self):
         return "dummy"
@@ -107,11 +109,14 @@ class sourcemeter(object):
     isUse=False
     def __init__(self,resourcemanager,gpib,isuse=False):
         self.isUse=isuse
-        if self.isUse == True:
-            self.rm=resourcemanager
-            self.SMU = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
-            self.reset()
-            self.SMU.write(':DISP:DIG %d' % int(digits) )
+        self.rm=resourcemanager
+        try:
+            if self.isUse == True:
+                self.SMU = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
+                self.reset()
+                self.SMU.write(':DISP:DIG %d' % int(digits) )
+        except:
+            raise
 
     def disconnect(self,visalib):
         if self.isUse == True:
@@ -293,12 +298,14 @@ class multimeter(object):
     rm=""
     def __init__(self,resourcemanager,gpib,isUSB=False):
         self.rm=resourcemanager
-        if isUSB==False:
-            self.VOLTMETER = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
-        else:
-            self.VOLTMETER = self.rm.get_instrument("USB0::0x0957::0x1A07::"+gpib+"::INSTR")#USB0::0x0957::0x1A07::SN????????::INSTR
-
+        try:
+            if isUSB==False:
+                self.VOLTMETER = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
+            else:
+                self.VOLTMETER = self.rm.get_instrument("USB0::0x0957::0x1A07::"+gpib+"::INSTR")#USB0::0x0957::0x1A07::SN????????::INSTR
             self.VOLTMETER.write("INP:IMP:AUTO ON")
+        except:
+            raise
             
     def sample(self):
         read=self.VOLTMETER.ask('READ?')
@@ -318,9 +325,12 @@ class multimeter2(object):
         self.isUse=isuse
         self.rm=resourcemanager
         if self.isUse == True:
-            self.VOLTMETER2 = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
-            read=self.VOLTMETER2.ask('*IDN?')
-            self.VOLTMETER2.write('*RST')
+            try:
+                self.VOLTMETER2 = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
+                read=self.VOLTMETER2.ask('*IDN?')
+                self.VOLTMETER2.write('*RST')
+            except:
+                raise
 
     def sample(self):
         if self.isUse == True:
@@ -362,11 +372,14 @@ class chamber(object):
     def __init__(self,resourcemanager,gpib=16,isctrl=False):
         isCtrl=isctrl
         self.rm=resourcemanager
-        self.CHAMBER = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
-        self.CHAMBER.ask('ROM?')
-        self.CHAMBER.ask("MODE, STANDBY")
-        if isCtrl == True:
-            self.CHAMBER.ask("MODE, CONSTANT")
+        try:
+            self.CHAMBER = self.rm.get_instrument("GPIB0::"+gpib+"::INSTR")
+            self.CHAMBER.ask('ROM?')
+            self.CHAMBER.ask("MODE, STANDBY")
+            if isCtrl == True:
+                self.CHAMBER.ask("MODE, CONSTANT")
+        except:
+            raise
 
     def getTemp(self):
         read=self.CHAMBER.ask("TEMP?")
@@ -395,8 +408,10 @@ class serial_i2c(object):
         self.isUse = isuse
         
         if self.isUse == True:
-            self.I2C=serial2i2c.serial2i2c(port,baud)
-        pass
+            try:
+                self.I2C=serial2i2c.serial2i2c(port,baud)
+            except:
+                raise
         
     def setBase(self, channel=0, base=0x90):
         if self.isUse == True:
