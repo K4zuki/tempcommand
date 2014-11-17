@@ -95,7 +95,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use Ser-I2C", width=35)
         self.isuse_serial.whenToggled=self.serial_toggled
         self.nextrely -= 1
-        self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com3",relx=40,width=35,
+        self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com99",relx=40,width=35,
             editable=False,hidden=True,)
 
         self.isuse_email = self.add(npyscreen.CheckBox, value = False, name="Use email", width=35 )
@@ -270,6 +270,9 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         except:
             npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
             self.logfile.write("=-=-=-=-= using dummy instruments =-=-=-=-=\n")
+            self.logfile.write("E3640A: "+str(self.E3640A)+"\n")
+            self.logfile.write("Chamber: "+str(self.Chamber)+"\n")
+            self.logfile.write("A34401A: "+str(self.A34401A)+"\n")
         else:
             self.E3640A.output(True)
 
@@ -279,6 +282,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 self.A34970A = instr_local.multimeter2(rm,self.dmm2.get_value(),self.isuse_dmm2.value)
             except:
                 npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+                self.logfile.write("A34970A: "+str(self.A34970A)+"\n")
 
         self.K2400 = instr_local.dummy()
         if self.isuse_smu.value:
@@ -286,6 +290,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 self.K2400 = instr_local.sourcemeter(rm,self.smu.get_value(),self.isuse_smu.value)
             except:
                 npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
+                self.logfile.write("K2400: "+str(self.K2400)+"\n")
 
         self.PLZ164 = instr_local.dummy()
         if self.isuse_kikusui.value:
@@ -293,14 +298,17 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 self.PLZ164 = instr_local.kikusui(rm,self.kikusui.get_value(),self.isUSB_kikusui.value,self.isuse_kikusui.value)
             except:
                 npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),title="ERROR REPORT",editw=1)
+                self.logfile.write("PLZ164: "+str(self.PLZ164)+"\n")
 
+        self.mbedI2C = instr_local.dummy()
         if self.isuse_serial.value:
             try:
                 self.mbedI2C = instr_local.serial_i2c(self.serial.get_value(),self.isuse_serial.value)
             except:
                 npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "+str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
-        else:
-            self.mbedI2C = instr_local.dummy()
+                self.logfile.write("mbedI2C: "+str(self.mbedI2C)+"\n")
+#        else:
+#            self.mbedI2C = instr_local.dummy()
 
         
         scr = open(os.path.join(self.scrfilename.get_value()), 'r')
@@ -459,7 +467,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.processing.value="UBASE"+str(argument)
         ulichan,ulibase= argument.split('=')
         channels=ulichan.split('+')
-        if len(channels)>1:
+        if len(channels) > 1:
             ulichan = [channels[0], channels[1]]
         else:
             ulichan = [channels[0]]
