@@ -147,8 +147,8 @@ class serial2i2c(object):
 
     def raw_write(self,data="DEADBEAF"):
         self.ser.write(data)
-        pass
-    
+#        pass
+
     def start(self):
         self.ser.write("S")
         pass
@@ -215,10 +215,11 @@ if __name__=="__main__":
 #    raw_input("wait, press enter to set channel 0")
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(0)
-    print dev.setChannel(1)
-    print dev.setChannel(2)
-    print dev.setChannel(3)
-    print dev.setChannel(0)
+    raw_input("wait, press enter to transferring data")
+#    print dev.setChannel(1)
+#    print dev.setChannel(2)
+#    print dev.setChannel(3)
+#    print dev.setChannel(0)
 #    print dev.ser.write(channel)
 #    print dev.ser.readline().strip()
 #    raw_input("wait, press enter to set channel 1")
