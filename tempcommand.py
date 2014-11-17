@@ -41,7 +41,8 @@ class tempcommand():
                                 self.commandList.append(comd)
                                 self.argumentList.append(read[1])
                             except:
-                                npyscreen.notify_confirm(str(comd)+": "+str(sys.exc_info()[1]),title="SUSPEND",editw=1)
+                                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
+                                    +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
 
                     else: continue
                     break
@@ -129,7 +130,8 @@ class tempcommand():
             try:
                 execute=self.commandset[command][0](arglist[cnt])
             except:
-                npyscreen.notify_confirm(str(command)+": "+str(sys.exc_info()[1]),title="SUSPEND",editw=1)
+                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
+                    +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
 
             logfile.write('\n')
             if execute==-1:break
