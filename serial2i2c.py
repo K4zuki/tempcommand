@@ -21,11 +21,14 @@ import time
 class serial2i2c(object):
     ser=0
     channel='0'
-    address=0x80
+    address=0x90
     wait=1e-2
     
     def __init__(self,port='com1',baud='115200'):
-        self.ser=serial.Serial(port,baudrate=baud,timeout=1)
+        try:
+            self.ser=serial.Serial(port,baudrate=baud,timeout=1)
+        except:
+            raise
         
     def setChannel(self,channel=0):
         self.channel=channel
