@@ -20,7 +20,7 @@ import time
 
 class serial2i2c(object):
     ser=0
-    channel='0'
+    channel=0
     address=0x90
     wait=1e-2
     
@@ -35,7 +35,7 @@ class serial2i2c(object):
         self.ser.write("C"+str(self.channel)+"P")
         time.sleep(self.wait)
         return (self.ser.readline().strip())
-        pass
+#        pass
         
     def read(self,address,length=1):
         self.ser.write("S"+chr(address|0x01)+chr(length)+"P")
@@ -215,10 +215,16 @@ if __name__=="__main__":
 #    raw_input("wait, press enter to set channel 0")
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(0)
+    print dev.write_and_read2(0xD0,0xD0,16)
     raw_input("wait, press enter to transferring data")
-#    print dev.setChannel(1)
-#    print dev.setChannel(2)
-#    print dev.setChannel(3)
+    print dev.setChannel(1)
+    print dev.write_and_read2(0xD0,0xD0,16)
+    raw_input("wait, press enter to transferring data")
+    print dev.setChannel(2)
+    print dev.write_and_read2(0xD0,0xD0,16)
+    raw_input("wait, press enter to transferring data")
+    print dev.setChannel(3)
+    print dev.write_and_read2(0xD0,0xD0,16)
 #    print dev.setChannel(0)
 #    print dev.ser.write(channel)
 #    print dev.ser.readline().strip()
@@ -255,15 +261,15 @@ if __name__=="__main__":
 ##    print dev.write2(0xD2,0x4701)
 ##    time.sleep(0.1)
 ##    print dev.write_and_read2(0xD0,0x50,16)
-    print dev.write_and_read2(0xD0,0x5D01,1)
-    print dev.write_and_read2(0xD0,0x5D00,1)
+##    print dev.write_and_read2(0xD0,0xD0,16)
+#    print dev.write_and_read2(0xD0,0x5D00,16)
 ##    print dev.write2(0xD0,0x5D01)
 ##    time.sleep(0.1)
 ##    print dev.write2(0xD0,0xD800)
 ##    print dev.write2(0xD0,0xD846)
 ##    print dev.write2(0xD0,0x5D00)
     
-    print dev.read2(0xD0,1)
+#    print dev.read2(0xD0,1)
     while False:
         print dev.write2(0xD0,0x5D00)
 ##        print dev.write2(0xD0,0x5D01)

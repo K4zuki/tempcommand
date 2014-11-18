@@ -412,14 +412,22 @@ class serial_i2c(object):
                 self.I2C=serial2i2c.serial2i2c(port,baud)
             except:
                 raise
+            else:
+                self.setBase(0,0x90)
+                self.setBase(1,0x90)
+                self.setBase(2,0x90)
+                self.setBase(3,0x90)
+                self.setChannel(0)
         
     def setBase(self, channel=0, base=0x90):
         if self.isUse == True:
             self.Slave[channel]=base
 
     def getBase(self, channel=0):
+        slave=0
         if self.isUse == True:
-            return self.Slave[channel]
+            slave=self.Slave[channel]
+        return slave
 
     def regWrite(self, slave=0x90, reg=0x00, data=0x00):
 #        packet=['S','P']
@@ -448,10 +456,11 @@ class serial_i2c(object):
         return packet
         
     def setChannel(self, channel=0):
+        dummy=0
         if self.isUse == True:
             self.Channel=channel
-            self.I2C.setChannel(channel)
-        pass
+            dummy=self.I2C.setChannel(channel)
+        return dummy
 
     def getChannel(self):
         channel=-1
