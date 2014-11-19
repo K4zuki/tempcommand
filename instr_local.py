@@ -412,13 +412,16 @@ class serial_i2c(object):
                 self.I2C=serial2i2c.serial2i2c(port,baud)
             except:
                 raise
-            else:
-                self.setBase(0,0x90)
-                self.setBase(1,0x90)
-                self.setBase(2,0x90)
-                self.setBase(3,0x90)
-                self.setChannel(0)
-        
+            self.setChannel(0)
+            self.setBase(0,0x90)
+            self.setChannel(1)
+            self.setBase(1,0x90)
+            self.setChannel(2)
+            self.setBase(2,0x90)
+            self.setChannel(3)
+            self.setBase(3,0x90)
+            self.setChannel(0)
+
     def setBase(self, channel=0, base=0x90):
         if self.isUse == True:
             self.Slave[channel]=base
