@@ -541,8 +541,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         packet=self.mbedI2C.regWrite(base,i2creg,i2cdata)
         self.logfile.write( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
         self.shellResponse( 'reg address = 0x%02X, data = 0x%02X' %( i2creg ,i2cdata ))
-        self.outfile.write( 'channel s%d,reg%02Xh =, 0x%02X\n' 
-            %( base, i2creg, i2cdata ))
+        self.outfile.write( 'channel s%d,reg%02Xh =, 0x%02X\n' %( base, i2creg, i2cdata ))
         self.logfile.write(str(packet))
         return 0
 
