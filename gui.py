@@ -36,6 +36,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
     cypressbase=0x90
     uli2c=[False,False]
     cypress=-99
+    script_fullname=""
+    script_basename=""
     def create(self): 
         self.commandset={}
 
@@ -49,19 +51,23 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("BASE",    self._base)
         self.add_command("REG",     self._register)
         self.add_command("UBASE",   self._ulibase)
-        self.add_command("UREG",   self._uliregister)
+        self.add_command("UREG",    self._uliregister)
         self.add_command("CHAN",    self._chanset)
-        self.add_command("FOR",    self._for)
+        self.add_command("FOR",     self._for)
         self.add_command("LOOP",    self._loop)
 
-        self.add_command("SBASE",    self._serialbase)
+        self.add_command("SBASE",   self._serialbase)
         self.add_command("SREG",    self._serialregister)
-        self.add_command("SCHAN",    self._serialchannel)
+        self.add_command("SCHAN",   self._serialchannel)
+        
+        self.add_command("CALL",    self._call)
+#        self.add_command("UCALL",    self._ulicall)
+#        self.add_command("SCALL",    self._serialcall)
 
 
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-#            value="C:\\Users\\kyamamot\\Documents\\GitHub\\tempcommand\\")
-            value="W:\\Tokyo\\Data\\Design Center\\Nori2\\Evaluation\\OL1_02.txt")
+            value="W:\\Tokyo\\Home\\kyamamot\\common\\GitHub\\tempcommand\\")
+#            value="W:\\Tokyo\\Data\\Design Center\\Nori2\\Evaluation\\OL1_02.txt")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
 
         self.chamber = self.add(npyscreen.TitleText, name = "Chamber:", value="16",width=35)
@@ -95,7 +101,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             editable=False,hidden=True,)
 
 #        self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use Ser-I2C", width=35)
-        self.isuse_serial = self.add(npyscreen.CheckBox, value = True, name="Use Ser-I2C", width=35)
+        self.isuse_serial = self.add(npyscreen.CheckBox, value = False, name="Use Ser-I2C", width=35)
         self.isuse_serial.whenToggled=self.serial_toggled
         self.nextrely -= 1
         self.serial = self.add(npyscreen.TitleText, name = "Serial-I2C:", value="com8",relx=40,width=35,
@@ -321,14 +327,16 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #            self.mbedI2C = instr_local.dummy()
 #        self.logfile.write("mbedI2C: "+str(self.mbedI2C)+"\n")
 
-        
-        scr = open(os.path.join(self.scrfilename.get_value()), 'r')
+        self.script_fullname=self.scrfilename.get_value()
+        self.script_basename="\\".join(self.script_fullname.split("\\")[:-1]) #path\to\scriptfile(windows only)
+        self.logfile.write("script: "+self.script_fullname+"\n")
+        self.logfile.write("base: "+self.script_basename+"\n")
+        scr = open(os.path.join(self.script_fullname), 'r')
         script = scr.read()
         scr.close()
+
         self.parse(script,self.logfile)
-#        self.make_list(script)
-#        self.break_loop(self.commandList,self.argumentList)
-#        self.parse_list(self.commandList,self.argumentList,self.logfile)
+
         time_finished = todaydetail.strftime("%H.%M.%S")
         self.outfile.write(time_finished+" finished\n")
         self.outfile.close()
@@ -344,12 +352,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.K2400.disconnect(lib)
         if self.isuse_kikusui.value:
             self.PLZ164.disconnect(lib)
+        if self.isuse_serial.value:
+            self.mbedI2C.disconnect(lib)
         info=(socket.gethostname(),csvname,time_finished)
         try:
             self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
         except:
-                npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
-                    +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+            npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
+                +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
 
         self.exit_application()
         
@@ -455,13 +465,13 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         return 0
     
     def _base(self,baseaddr=0x90):
-        baseaddr=int(baseaddr)
+        baseaddr=int(baseaddr,16)
         self.processing.value="BASE"+str(baseaddr)
-        self.logfile.write( 'i2c slave address set: 0x'+str(baseaddr))
-        self.shellResponse( 'i2c slave address set: 0x'+str(baseaddr))
+        self.logfile.write( 'i2c slave address set: %02X'%(baseaddr))
+        self.shellResponse( 'i2c slave address set: %02X'%(baseaddr))
         self.i2c = usbio.I2C(self.cypress, baseaddr)
 #        self.i2c = usbio.usbio.I2C(self.cypress, baseaddr)
-        self.outfile.write("SLAVE = 0x"+str(baseaddr)+",(8it)\n")
+        self.outfile.write("SLAVE = %02X,(8it)\n" %(baseaddr))
         return 0
    
     def _register(self,argument):
@@ -475,6 +485,35 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         else:
             self.i2c.write_register( i2creg, i2cdata )
         self.outfile.write( ',reg%02Xh =, 0x%02X\n' %( i2creg ,i2cdata ))
+
+        return 0
+
+    def _call(self,conf): #CALL(filename) : load i2c setting file "filename" and write them all into device under usbio module
+        base=0
+        reg=0
+        data=0
+        self.processing.value="CALL( "+conf+" )"
+        dummy,file= conf.split("(")
+        conf,dummy= file.split(")")
+        conf=self.script_basename+"\\"+conf
+        scr = open(os.path.join(conf), 'r')
+        script = scr.read()
+        self.logfile.write( 'i2c config file: '+conf+"\n")
+        scr.close()
+        for line in script.split('\n'):
+            words = line.split('//')[0]
+            if words.split() == []: continue
+            self.logfile.write( words+"\n")
+            base,reg,data=words.split(",") #still string
+            base=int(base,16)
+            reg=int(reg,16)
+            data=int(data,16)
+            self.logfile.write( "base="+str(base)+",reg="+str(reg)+",data="+str(data)+"\n")
+            i2c = usbio.I2C(self.cypress, base)
+            if self.cypress==-99 :pass
+            else:
+                i2c.write_register( i2creg, i2cdata )
+
         return 0
 
     def _ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
@@ -520,6 +559,9 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 %( int(f), ulireg, ulidata ))
         return 0
 
+    def _ulicall(self,conf):
+        pass
+
     def _serialbase(self, baseaddr=0x90):
 #        baseaddr=int(baseaddr,16)
         self.processing.value="SBASE"+str(baseaddr)
@@ -559,6 +601,9 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write( 'I2C channel ,s%d\n' %(ch))
         return 0
 
+    def _serialcall(self,conf):
+        pass
+
     def _chanset(self,channels):
         self.processing.value="CHAN"+str(channels)
         self.logfile.write( 'set channels(@'+channels.replace('+',',')+')')
@@ -594,8 +639,8 @@ if __name__ == '__main__':
     try:
         TC.run()
     except:
-        npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2])),
-            title="ERROR REPORT",editw=1)
+        npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))
+                +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
     else:
         sys.stdout = sys.__stdout__
         raw_input("\t -------- measurement finished (Press RETURN key to exit) --------\
