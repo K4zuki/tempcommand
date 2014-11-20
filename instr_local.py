@@ -412,15 +412,9 @@ class serial_i2c(object):
                 self.I2C=serial2i2c.serial2i2c(port,baud)
             except:
                 raise
-            self.setChannel(0)
-            self.setBase(0,0x90)
-            self.setChannel(1)
-            self.setBase(1,0x90)
-            self.setChannel(2)
-            self.setBase(2,0x90)
-            self.setChannel(3)
-            self.setBase(3,0x90)
-            self.setChannel(0)
+            for hoge in range(4):
+                self.setChannel(hoge)
+                self.setBase(hoge,0x90)
 
     def setBase(self, channel=0, base=0x90):
         if self.isUse == True:
@@ -470,6 +464,9 @@ class serial_i2c(object):
         if self.isUse == True:
             channel = self.Channel
         return channel
+
+    def disconnect(self,visalib):
+        self.I2C.close()
 
 class dummy(object):
     def __init__(self):
