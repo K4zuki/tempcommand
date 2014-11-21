@@ -61,7 +61,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("SCHAN",   self._serialchannel)
         
         self.add_command("CALL",    self._call)
-#        self.add_command("UCALL",    self._ulicall)
+        self.add_command("UCALL",    self._ulicall)
 #        self.add_command("SCALL",    self._serialcall)
 
 
@@ -205,10 +205,9 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.editing = False
 
     def tc_run(self):
-        isdebug=False
         lib=rm=False
         todaydetail = datetime.datetime.today()
-        todaydir= "C:\\Users\\Public\\Documents\\"+monthname.monthname()#todaydetail.strftime("%Y.%m%b.%d")
+        todaydir= "C:\\Users\\Public\\Documents\\"+monthname.monthname()
         if os.path.exists(todaydir) !=1:
             os.mkdir(todaydir)
         csvname = todaydetail.strftime("%H.%M.%S")+".chamber.csv"
@@ -489,31 +488,31 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         return 0
 
     def _call(self,conf): #CALL(filename) : load i2c setting file "filename" and write them all into device under usbio module
-        base=0
-        reg=0
-        data=0
         self.processing.value="CALL( "+conf+" )"
         dummy,file= conf.split("(")
         conf,dummy= file.split(")")
         conf=self.script_basename+"\\"+conf
         scr = open(os.path.join(conf), 'r')
         script = scr.read()
-        self.logfile.write( 'i2c config file: '+conf+"\n")
         scr.close()
+        self.logfile.write(',reading i2c config file: '+conf+"\n")
+        self.shellResponse(',reading i2c config file: '+conf)
+        self.outfile.write(',reading:,'+conf+'\n')
         for line in script.split('\n'):
             words = line.split('//')[0]
             if words.split() == []: continue
             self.logfile.write( words+"\n")
-            base,reg,data=words.split(",") #still string
+            base,reg,data=words.split() #still string
             base=int(base,16)
             reg=int(reg,16)
             data=int(data,16)
-            self.logfile.write( "base="+str(base)+",reg="+str(reg)+",data="+str(data)+"\n")
+            self.logfile.write( "base=%02X, reg=%02X, data=%02X\n" %(base,reg,data))
+            self.outfile.write( "base=%02X, reg=%02X, data=%02X\n" %(base,reg,data))
+            self.shellResponse( "base=%02X, reg=%02X, data=%02X" %(base,reg,data))
             i2c = usbio.I2C(self.cypress, base)
             if self.cypress==-99 :pass
             else:
                 i2c.write_register( i2creg, i2cdata )
-
         return 0
 
     def _ulibase(self,argument):#UBASEx[+y]=zz -> channel=x[and y], baseaddress=zz
@@ -559,7 +558,36 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 %( int(f), ulireg, ulidata ))
         return 0
 
-    def _ulicall(self,conf):
+    def _ulicall(self,conf): #UCALL(x=filename) load i2c setting file "filename" and write them all into device under uli module, channel=x
+        self.processing.value="UCALL( "+conf+" )"
+        dummy,conf= conf.split("(")
+        conf,dummy= conf.split(")")
+        channel,conf=conf.split("=")
+        conf=self.script_basename+"\\"+conf
+        scr = open(os.path.join(conf), 'r')
+        script = scr.read()
+        scr.close()
+        self.logfile.write('ch u'+channel+':,reading i2c config file: '+conf+"\n")
+        self.shellResponse('ch u'+channel+':,reading i2c config file: '+conf)
+        self.outfile.write('ch u'+channel+':,reading:,'+conf+'\n')
+        channel=int(channel)
+        for line in script.split('\n'):
+            words = line.split('//')[0]
+            if words.split() == []: continue
+            self.logfile.write( words+"\n")
+            base,reg,data=words.split() #still string
+            base=int(base,16)
+            reg=int(reg,16)
+            data=int(data,16)
+            self.logfile.write( "base=%02X, reg=%02X, data=%02X\n" %(base,reg,data))
+            self.outfile.write( "base=%02X, reg=%02X, data=%02X\n" %(base,reg,data))
+            self.shellResponse( "base=%02X, reg=%02X, data=%02X" %(base,reg,data))
+            i2c = uli.I2C( 0, base, channel)#0x48/7bit=0x90/8bit
+            if self.uli2c[channel]==False:
+                pass
+            else:
+                i2c.write_register( ulireg, ulidata )
+        return 0
         pass
 
     def _serialbase(self, baseaddr=0x90):
