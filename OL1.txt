@@ -27,6 +27,13 @@ volt3.7
 //sample
 //temp30
 //Schan0
+//for -40+-20+0+20+30+40+60+80+100+120;temp
+    call(hoge.txt)
+    ucall(0=hoge.txt)
+    ucall(1=hoge.txt)
+//loop
+eof
+
 for 0+1+2+3;schan
     Sbase90
     Sregaa=55
