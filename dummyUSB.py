@@ -16,3 +16,6 @@ class I2C(object):
         
 def autodetect():
     pass
+
+def setup():
+    pass
