@@ -64,9 +64,12 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.add_command("UCALL",    self._ulicall)
 #        self.add_command("SCALL",    self._serialcall)
 
+        self.add_command("EMAIL",   self._email)
+
 
         self.scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-            value="W:\\Tokyo\\Home\\kyamamot\\common\\GitHub\\tempcommand\\")
+#            value="W:\\Tokyo\\Home\\kyamamot\\common\\GitHub\\tempcommand\\")
+            value="W:\\Tokyo\\Data\\Design Center\\")
 #            value="W:\\Tokyo\\Data\\Design Center\\Nori2\\Evaluation\\OL1_02.txt")
         self.psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
 
@@ -361,7 +364,18 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
                 +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
 
         self.exit_application()
-        
+
+    def _email(self, argument): # EMAIL(user@example.com;smtp.example.com)
+        dummy,mailto= argument.split("(")
+        mailto,dummy= mailto.split(")")
+        user,smtp=mailto.split(";")
+        self.processing.value="EMAIL( "+user+" )"
+        self.sendto.set_value(user)
+        self.sendsrv.set_value(smtp)
+        self.isuse_email.value=True
+        self.email_toggled()
+        return 0
+
     def sendmail(self,address,server,info,isuse=False):
         import smtplib
         from email.mime.text import MIMEText
@@ -495,8 +509,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         scr = open(os.path.join(conf), 'r')
         script = scr.read()
         scr.close()
-        self.logfile.write(',reading i2c config file: '+conf+"\n")
-        self.shellResponse(',reading i2c config file: '+conf)
+        self.logfile.write('reading i2c config file: '+conf+"\n")
+        self.shellResponse('reading i2c config file: '+conf)
         self.outfile.write(',reading:,'+conf+'\n')
         for line in script.split('\n'):
             words = line.split('//')[0]
@@ -567,8 +581,8 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         scr = open(os.path.join(conf), 'r')
         script = scr.read()
         scr.close()
-        self.logfile.write('ch u'+channel+':,reading i2c config file: '+conf+"\n")
-        self.shellResponse('ch u'+channel+':,reading i2c config file: '+conf)
+        self.logfile.write('ch u'+channel+': reading i2c config file: '+conf+"\n")
+        self.shellResponse('ch u'+channel+': reading i2c config file: '+conf)
         self.outfile.write('ch u'+channel+':,reading:,'+conf+'\n')
         channel=int(channel)
         for line in script.split('\n'):
