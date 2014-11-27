@@ -58,7 +58,7 @@ class tempcommand():
             print "error",commandlist.count("FOR"),argumentlist.count("LOOP")
 
         return True
-        
+
 #1. pop biggest FOR
 #2. scan LOOP from bigger number
 #3. (LOOP>FOR) && minimum(abs(LOOP-FOR)) is the best LOOP
