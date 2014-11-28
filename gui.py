@@ -356,7 +356,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.PLZ164.disconnect(lib)
         if self.isuse_serial.value:
             self.mbedI2C.disconnect(lib)
-        info=(socket.gethostname(),csvname,time_finished)
+        info=(socket.gethostname(),todaydir,csvname,time_finished)
         try:
             self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
         except:
@@ -378,11 +378,16 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 
     def sendmail(self,address,server,info,isuse=False):
         import smtplib
-        from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
+#        from email.mime.text import MIMEText
+#        from email.mime.multipart import MIMEMultipart
+        from email import Encoders
+        from email.Utils import formatdate
+        from email.MIMEBase import MIMEBase
+        from email.MIMEMultipart import MIMEMultipart
+        from email.MIMEText import MIMEText
         if isuse:
             msg = MIMEMultipart()
-            machinename,outfile,finished = info
+            machinename,path,outfile,finished = info
             logfile=outfile+".log"
             sender = address
             subject = "[ LAB ] tempctrl finished"
@@ -393,6 +398,14 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             msg['To'] = sender
             msg['Subject'] = subject
             msg.attach(MIMEText(body, 'plain'))
+            attachment = MIMEBase('text','comma-separated-values')
+            file = open(path+'\\'+outfile)
+            attachment.set_payload(file.read())
+            file.close()
+            Encoders.encode_base64(attachment)
+            msg.attach(attachment)
+            attachment.add_header("Content-Disposition","attachment", filename=outfile)
+
             text=msg.as_string()
             #print text
             # Send the message via our SMTP server
