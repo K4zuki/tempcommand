@@ -124,7 +124,6 @@ class tempcommand():
             for foo in a_list[1:]:
                 a_result.append(foo)
 
-        print c_list
         return (c_result,a_result)
         pass
         
