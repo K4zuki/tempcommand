@@ -40,6 +40,7 @@ class tempcommand():
                             try:
                                 self.commandList.append(comd)
                                 self.argumentList.append(read[1])
+
                             except:
                                 npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
                                     +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
@@ -59,67 +60,71 @@ class tempcommand():
 
         return True
 
-#1. pop biggest FOR
-#2. scan LOOP from bigger number
-#3. (LOOP>FOR) && minimum(abs(LOOP-FOR)) is the best LOOP
+#0. list up index number(s) of both FOR and LOOP
+#1. pop *biggest* FOR and get index number
+#2. scan LOOP from smaller number
+#3. find the best LOOP; the first LOOP which has bigger index number than FOR's one
 #4. pop the LOOP
-#5. break the loop
+#5. destract the loop
+#6. if FOR remains in the whole list, go to #1
 
-    def break_loop(self,c_list,a_list):
+    def break_loop(self, c_list, a_list):
         c_temp=c_list[:]
         F_index = []
         L_index = []
-        result=[]
-        c_result=[]
-        a_result=[]
-        
-        if(c_list.count("FOR")>0):
-            for hoge in range(len(c_list)):
-                if c_list[hoge] == "FOR":
-                    F_index.append(hoge)
-                elif c_list[hoge] == "LOOP":
-                    L_index.append(hoge)
-            i=0
-            while(len(F_index)>0):
-                hoge=F_index.pop()
-                i=0
-                for foo in range(len(L_index)):
-                    if L_index[foo]>hoge:
-                        break
+        result = []
+        c_result = []
+        a_result = []
+        """count FORs and LOOPs"""
+        if(c_list.count("FOR") > 0): # if any FOR found
+            for hoge in range(len(c_list)): # search in command list
+                if c_list[hoge] == "FOR": # if FOR is found
+                    F_index.append(hoge) # index added into FOR's list
+                elif c_list[hoge] == "LOOP": # if LOOP is found
+                    L_index.append(hoge) # index added into LOOP's list
+            while(len(F_index) > 0): # while any FOR remains
+                hoge=F_index.pop() # pop FOR's biggest index
+                for foo in range(len(L_index)): # search over remaining LOOPs
+                    if L_index[foo] > hoge: # if index(LOOP) > max_index(FOR)
+                        break # break for loop
                         
-                foo=L_index.pop(foo)
-                result.append([hoge,foo])
-            result.reverse()
-            result=result.pop()
-            c_result,a_result = self._break_loop( c_list[result[0]:result[1]],
-                                    a_list[result[0]:result[1]])
+                foo = L_index.pop(foo) # pop hit LOOP index
+                result.append([hoge,foo]) # result = [ [...], [...], [max_index(FOR), hit_index(LOOP)] ]
+            result.reverse() # result = [ [smallest FOR], [2nd smallest], [...], ..., [largest FOR] ]
+            result=result.pop() # result = [ largest FOR pair ]
+            c_result,a_result = self._break_loop(   c_list[result[0]:result[1]], 
+                                                    a_list[result[0]:result[1]] )
+
             for hoge in range(len(c_list[result[0]:result[1]+1])):
                 c_list.pop(result[0])
                 a_list.pop(result[0])
             for hoge in range(len(c_result)):
-                c_list.insert(result[0],c_result.pop())
-                a_list.insert(result[0],a_result.pop())
-            self.break_loop(c_list,a_list)
+                c_list.insert(result[0], c_result.pop())
+                a_list.insert(result[0], a_result.pop())
+            self.break_loop(c_list, a_list)
 
-        return c_list,a_list
+        return c_list, a_list
         pass
         
     def _break_loop(self, c_list, a_list):
-        c_result=[]
-        a_result=[]
-        var=a_list[0].split(";")
-        lst=var[0].split("+")
-        for var[0] in lst:
-            for comd, func in self.commandset.iteritems():
-                read=(str(var[1])+str(var[0])).split(comd)
-                if(read[0])=='':
-                    c_result.append(comd)
-                    a_result.append(read[1])
-                    for hoge in c_list[1:]:
-                        c_result.append(hoge)
-                    for foo in a_list[1:]:
-                        a_result.append(foo)
+        c_result = []
+        a_result = []
+        var = a_list[0].split(";")
+        a_lst = var[0].split("+")
+        c_lst = var[1].split("|")
+        for arg in a_lst:
+            for cmd in c_lst:
+                for comd, func in self.commandset.iteritems():
+                    read=(str(cmd)+str(arg)).split(comd)
+                    if(read[0])=='':
+                        c_result.append(comd)
+                        a_result.append(read[1])
+            for hoge in c_list[1:]:
+                c_result.append(hoge)
+            for foo in a_list[1:]:
+                a_result.append(foo)
 
+        print c_list
         return (c_result,a_result)
         pass
         
@@ -316,8 +321,8 @@ if __name__ == '__main__':
                 for 00+02+04; reg00=
                     sample
                 LOOP
-                for 0c+0e; reg00=
-                    for 00+02+04; reg00=
+                for 0c+0e; reg02=
+                    for 00+02+04; reg01=+regaa=
                         sample
                     LOOP
                 LOOP
