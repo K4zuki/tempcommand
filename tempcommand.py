@@ -3,16 +3,29 @@ import time
 import sys
 import traceback
 
+## tempcommand: temperature chamber controller base class
 class tempcommand():
+    ## @var commandset
+    #defines commands and callback functions
     commandset={}
-    isInLoop=[]
-    lpContain=[]
-    lpHeader=[]
+
+    ## @var commandList
+    #contains whole command list read from script
     commandList=[]
+
+    ## @var argumentList
+    #contains whole argument list read from script
     argumentList=[]
+
+    ## constructor
     def __init__(self):
         self.commandset={}
-    
+
+    ## parse()
+    # makes whole command list from script, cut off after first EOF, 
+    # destruct loops(break_loop()) and execute them all(parse_list())
+    # @param script script (command list) file
+    # @param logfile log output file
     def parse(self,script,logfile):
         count_eof=0
         self.make_list(script)
@@ -27,6 +40,10 @@ class tempcommand():
             self.parse_list(self.commandList,self.argumentList,logfile)
         return True
 
+    ## make_list()
+    # called from parse()
+    # makes command list from read script
+    # @param script script(command list) file
     def make_list(self,script):
         for line in script.split('\n'):
             for words in line.split('//')[0].split(','):
@@ -68,6 +85,12 @@ class tempcommand():
 #5. destract the loop
 #6. if FOR remains in the whole list, go to #1
 
+    ## break_loop()
+    # called from parse()
+    # find FOR loop and cut then call _break_loop() to destruct
+    # @param c_list command list
+    # @param a_list argument list
+    # @return destructed (c_list, a_list)
     def break_loop(self, c_list, a_list):
         c_temp=c_list[:]
         F_index = []
@@ -105,7 +128,12 @@ class tempcommand():
 
         return c_list, a_list
         pass
-        
+
+    ## _break_loop
+    # called from break_loop()
+    # destructs FOR loop into command and argument list
+    # @param c_list command list
+    # @param a_list argument list
     def _break_loop(self, c_list, a_list):
         c_result = []
         a_result = []
@@ -126,7 +154,13 @@ class tempcommand():
 
         return (c_result,a_result)
         pass
-        
+
+    ## parse_list
+    # called from parse()
+    # executes all listed commands
+    # @param comlist command list
+    # @param arglist argument list
+    # @param logfile log output file
     def parse_list(self,comlist,arglist,logfile):
         execute=-1
         cnt=0
@@ -143,6 +177,10 @@ class tempcommand():
 
         return True
 
+    ## add_command
+    # adds command and casllback functions as dictionary pair
+    # @param command command; must be large character
+    # @param func callback function; should be started with '_'
     def add_command(self,command,func):
         self.commandset[command] = [func]
     
@@ -233,64 +271,63 @@ if __name__ == '__main__':
         return 0
 
     def _for(times=1):
-        global parser,logfile
-        parser.isInLoop.append(True)
-        var=times.split(";")
-        lst=var[0].split("+")
-        for var[0] in lst:
-            print str(var[1])+str(var[0])
-            parser.lpHeader.append(str(var[1])+str(var[0]))
+#        global parser,logfile
+#        parser.isInLoop.append(True)
+#        var=times.split(";")
+#        lst=var[0].split("+")
+#        for var[0] in lst:
+#            print str(var[1])+str(var[0])
+#            parser.lpHeader.append(str(var[1])+str(var[0]))
         return 0
 
     def _loop(dummy=-1):
-        global parser,logfile
-        print parser.lpHeader
-        print parser.lpContain
-        if (parser.isInLoop[0]==True):
-            parser.isInLoop.pop(0)
-            for head in parser.lpHeader:
-                parser.parse(head,logfile)
-                for commd in parser.lpContain:
-                    parser.parse(commd,logfile)
-                
-            print 'end of loop'
+#        global parser,logfile
+#        print parser.lpHeader
+#        print parser.lpContain
+#        if (parser.isInLoop[0]==True):
+#            parser.isInLoop.pop(0)
+#            for head in parser.lpHeader:
+#                parser.parse(head,logfile)
+#                for commd in parser.lpContain:
+#                    parser.parse(commd,logfile)
+#        print 'end of loop'
         return 0
 
     def _sample(dummy=-1):
-        global parser
-        if (parser.isInLoop!=[]):
-            parser.lpContain.append("SAMPLE")
-            print 'Sample in loop'
-        else:
-            print 'Sample'
+#        global parser
+#        if (parser.isInLoop!=[]):
+#            parser.lpContain.append("SAMPLE")
+#            print 'Sample in loop'
+#        else:
+        print 'Sample'
         return 0
 
     def _register(argument):
         global parser
         i2creg,i2cdata=argument.split('=')
-        if (parser.isInLoop!=[]):
-            parser.lpContain.append("REG"+argument)
-            print 'reg address = 0x%03X, data = 0x%02X in inner loop' %( int(i2creg,16),int(i2cdata,16) )
-        else:
-            print 'reg address = 0x%03X, data = 0x%02X' %( int(i2creg,16),int(i2cdata,16) )
+#        if (parser.isInLoop!=[]):
+#            parser.lpContain.append("REG"+argument)
+#            print 'reg address = 0x%03X, data = 0x%02X in inner loop' %( int(i2creg,16),int(i2cdata,16) )
+#        else:
+        print 'reg address = 0x%03X, data = 0x%02X' %( int(i2creg,16),int(i2cdata,16) )
         return 0
         
     def _chanset(channels):
         global parser
-        if (parser.isInLoop!=[]):
-            parser.lpContain.append("CHAN"+channels)
-            print 'set channels @'+channels
-        else:
-            print 'set channels @'+channels
+#        if (parser.isInLoop!=[]):
+#            parser.lpContain.append("CHAN"+channels)
+#            print 'set channels @'+channels
+#        else:
+        print 'set channels @'+channels
         return 0
         
     def _delay(_wait=1):
         global parser
-        if (parser.isInLoop!=[]):
-            parser.lpContain.append("DELY"+_wait)
-            print 'wait for: '+_wait+' minutes'
-        else:
-            print 'wait for: '+_wait+' minutes'
+#        if (parser.isInLoop!=[]):
+#            parser.lpContain.append("DELY"+_wait)
+#            print 'wait for: '+_wait+' minutes'
+#        else:
+        print 'wait for: '+_wait+' minutes'
         return 0
 
     def _repeat(times=1):
