@@ -21,23 +21,44 @@ try:
 except:
     import dummyUSB as usbio
 
+## TempCtrl
+# only calls MainForm
 class TempCtrl(npyscreen.NPSAppManaged):
     def onStart(self):
         self.mainform=self.addForm("MAIN", MainForm, name="\tTemerature Control and measurement\t",
             color="GOOD" )#, minimum_lines=35, minimum_columns=100)
 
+## MainForm
+# main class
 class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #    TCrun=False
-    isSuspend=False
-    hoge=None
+#    isSuspend=False
+#    hoge=None
+    ## @var outfile
+    # output CSV file
     outfile=None
+    ## @var logfile
+    # log output text file
     logfile=None
+    ## @var i2c
+    # cypress I2C module instance
     i2c=False
+    ## @var cypressbase
+    # base address of device under cypress I2C module
     cypressbase=0x90
+    ## @var uli2c
+    # base addresses under ULI module
     uli2c=[False,False]
+    ## @var cypress
+    # cypress USB module instance
     cypress=-99
+    ## @var script_fullname
+    # \full\path\to\output.csv
     script_fullname=""
+    ## @var script_basename
+    # basename of script_fullname
     script_basename=""
+    
     def create(self): 
         self.commandset={}
 
@@ -361,7 +382,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             self.sendmail(self.sendto.get_value(),self.sendsrv.get_value(),info,self.isuse_email.value)
         except:
             npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
-                +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
+                +str(sys.exc_info()[1]),title="ERROR REPORT(sendmail)",editw=1)
 
         self.exit_application()
 
@@ -413,11 +434,11 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             s.sendmail(sender,sender, text)
             s.quit()
 
-    def _eof(self,dummy=-1):
+    def _eof(self,dummy='-1'):
         self.shellResponse('EndOfFile triggered')
         return -1
 
-    def _temp(self,temp=30):
+    def _temp(self,temp='30'):
         self.processing.value="TEMP"+str(temp)
         self.Ttarget.value=str(temp)+" oC"
         self.logfile.write( 'temperature set: '+temp+' oC\n')
@@ -442,7 +463,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write(temp+"oC\n")
         return 0
 
-    def _sample(self,dummy=-1):
+    def _sample(self,dummy='-1'):
         self.processing.value="SAMPLE"
         self.logfile.write( 'sample triggered')
         self.shellResponse( 'sample triggered')
@@ -455,7 +476,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.outfile.write(read+"\n")
         return 0
 
-    def _suspend(self,dummy=-1):
+    def _suspend(self,dummy='-1'): # SUSPEND
         self.logfile.write( 'suspend triggered->')
         self.shellResponse( 'suspend triggered')
 
@@ -468,7 +489,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.shellResponse( 'return from popup')
         return 0
 
-    def _volt(self,volt=3.0):
+    def _volt(self,volt='3.0'): # VOLT x.x : sets supply voltage to be x.xV
         self.processing.value="VOLT"+str(volt)
         self.logfile.write( 'voltage set: '+volt+' V')
         self.shellResponse( 'voltage set: '+volt+' V')
@@ -476,7 +497,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         self.E3640A.SetVoltage(volt)
         return 0
 
-    def _delay(self,delay=1):
+    def _delay(self,delay=1): # DELY x : wait for x minutes
         self.processing.value="DELY"+str(delay)
         self.shellResponse( 'wait for: '+delay+' minutes')
         for i in range(6 * int(delay)):
@@ -485,12 +506,12 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
             time.sleep(10)
         return 0
 
-    def _kikusui(self,current=0.001):
-        self.logfile.write( 'current set: '+str(current)+' A')
-        self.shellResponse( 'current set: '+str(current)+' A')
+    def _kikusui(self,current='1e-3'):
+        self.logfile.write( 'current set: '+current+' A')
+        self.shellResponse( 'current set: '+current+' A')
         return 0
-    
-    def _base(self,baseaddr=0x90):
+
+    def _base(self,baseaddr='90'): # BASE xx : set 8bit base address to be xx (HEX)
         baseaddr=int(baseaddr,16)
         self.processing.value="BASE"+str(baseaddr)
         self.logfile.write( 'i2c slave address set: %02X'%(baseaddr))
@@ -499,7 +520,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
 #        self.i2c = usbio.usbio.I2C(self.cypress, baseaddr)
         self.outfile.write("SLAVE = %02X,(8it)\n" %(baseaddr))
         return 0
-   
+
     def _register(self,argument):
         self.processing.value="REG"+str(argument)
         i2creg,i2cdata=argument.split('=')
@@ -515,7 +536,7 @@ class MainForm(npyscreen.ActionForm,tempcommand.tempcommand):
         return 0
 
     def _call(self,conf): #CALL(filename) : load i2c setting file "filename" and write them all into device under usbio module
-        self.processing.value="CALL( "+conf+" )"
+        self.processing.value="CALL "+conf
         dummy,file= conf.split("(")
         conf,dummy= file.split(")")
         conf=self.script_basename+"\\"+conf
