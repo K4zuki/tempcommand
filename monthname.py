@@ -1,5 +1,7 @@
 import datetime
 
+## date to folder name converter function
+# @return date in YYYY.mmMMM.dd format
 def monthname():
     todaydetail = datetime.datetime.today()
     mnum=todaydetail.strftime("%m")
