@@ -1,6 +1,7 @@
 #-*- coding: utf-8 -*- 
 #!/usr/bin/env python
 
+## dummy class to replace usbio class
 class I2C(object):
     def __init__(self,module,slave):
         pass
