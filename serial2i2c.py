@@ -137,6 +137,9 @@ class serial2i2c(object):
 
     def raw_write(self, data="DEADBEAF"):
         self._ser.write(data)
+        
+    def raw_read(self):
+        return (self._ser.readline().strip())
 
     ## sends 'S' command packet to make start condition
     def start(self):
@@ -170,7 +173,7 @@ class MyParser(object):
 #        self._parser.add_argument('--port','-p', help='number or name of serial port', default='/dev/ttyACM0')
 #        self._parser.add_argument('--mon','-m', help='number or name of serial port', default='/dev/ttyACM0')
         self._parser.add_argument('--baud','-b', help='baudrate of serial port', default='115200')#460800
-        self.args=self.parser.parse_args(namespace=self)        
+        self.args=self._parser.parse_args(namespace=self)        
 
 if __name__=="__main__":
 #    parser.print_help()
@@ -191,15 +194,15 @@ if __name__=="__main__":
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(0)
     print dev.write_and_read(0xD0,0xD0,16)
-    raw_input("wait, press enter to transferring data")
-    print dev.setChannel(1)
-    print dev.write_and_read(0xD0,0xD0,16)
-    raw_input("wait, press enter to transferring data")
-    print dev.setChannel(2)
-    print dev.write_and_read(0xD0,0xD0,16)
-    raw_input("wait, press enter to transferring data")
-    print dev.setChannel(3)
-    print dev.write_and_read(0xD0,0xD0,16)
+###    raw_input("wait, press enter to transferring data")
+###    print dev.setChannel(1)
+###    print dev.write_and_read(0xD0,0xD0,16)
+###    raw_input("wait, press enter to transferring data")
+###    print dev.setChannel(2)
+###    print dev.write_and_read(0xD0,0xD0,16)
+###    raw_input("wait, press enter to transferring data")
+###    print dev.setChannel(3)
+###    print dev.write_and_read(0xD0,0xD0,16)
 #    print dev.setChannel(0)
 #    print dev.ser.write(channel)
 #    print dev.ser.readline().strip()
@@ -245,6 +248,8 @@ if __name__=="__main__":
 ##    print dev.write(0xD0,0x5D00)
     
 #    print dev.read(0xD0,1)
+    dev.raw_write('R00102P')
+    print dev.raw_read()
     while False:
         print dev.write(0xD0,0x5D00)
 ##        print dev.write(0xD0,0x5D01)
