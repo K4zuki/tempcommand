@@ -17,8 +17,24 @@ import time
 # [_] Z 0x5A power down
 # [X] C 0x43 change channel
 
-## serial2i2c: RS232C to I2C converter using mbed
+## RS232C to I2C converter using mbed
 class serial2i2c(object):
+    """
+    serial2i2c: RS232C to I2C converter using mbed
+    "C| '0'| P"
+    "C| '1'| P"
+    "C| '2'| P"
+    "C| '3'| P"
+    "S| 0x_8 _0| 0x_0 _4| 0x_D _E _A _D _B _E _A _F| P"
+    "S| 0x_8 _0| 0x_0 _4| 0x_D _E _A _D _B _E _A _F| S| 0x_8 _1| 0x_0 _4| P"
+    "S| 0x_8 _1| 0x_0 _4| P"
+    "R| '0'| P"
+    "R| '0'| '1'| ...| P"
+    "W| '0' 0x_a _a| P"
+    "W| '0' 0x_a _a| '1' 0x_b _b| ...| P"
+    "I| P"
+    "O| 0x_a _a| P"
+    """
     _ser = 0
     _channel = 0
     _wait = 1e-2
@@ -149,16 +165,16 @@ class serial2i2c(object):
 
 class MyParser(object):
     def __init__(self):
-        self.parser = argparse.ArgumentParser(description="hogeeee")
-        self.parser.add_argument('--port','-p', help='number or name of serial port', default='com1')
-#        self.parser.add_argument('--port','-p', help='number or name of serial port', default='/dev/ttyACM0')
-#        self.parser.add_argument('--mon','-m', help='number or name of serial port', default='/dev/ttyACM0')
-        self.parser.add_argument('--baud','-b', help='baudrate of serial port', default='115200')#460800
+        self._parser = argparse.ArgumentParser(description="hogeeee")
+        self._parser.add_argument('--port','-p', help='number or name of serial port', default='com1')
+#        self._parser.add_argument('--port','-p', help='number or name of serial port', default='/dev/ttyACM0')
+#        self._parser.add_argument('--mon','-m', help='number or name of serial port', default='/dev/ttyACM0')
+        self._parser.add_argument('--baud','-b', help='baudrate of serial port', default='115200')#460800
         self.args=self.parser.parse_args(namespace=self)        
 
 if __name__=="__main__":
 #    parser.print_help()
-    parser=MyParser()
+    parser = MyParser()
 #    args=parser.parse_args()
 #    print args
 #    print args.port, args.baud
