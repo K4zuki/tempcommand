@@ -155,7 +155,7 @@ class tempcommand():
         return (c_result,a_result)
         pass
 
-    ## parse_list
+    ## parse_list()
     # called from parse()
     # executes all listed commands
     # @param comlist command list
