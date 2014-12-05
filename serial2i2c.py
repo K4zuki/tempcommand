@@ -40,37 +40,18 @@ class serial2i2c(object):
         self._ser.write("C" + str(self._channel) + "P")
         time.sleep(self._wait)
         return (self._ser.readline().strip())
-#        pass
-
-    ## NOT IN USE
-    def _read(self, address, length=1):
-        self._ser.write("S"+chr(address|0x01)+chr(length)+"P")
-        time.sleep(self._wait)
-        return(self._ser.readline().strip())
-        pass
-
-    ## NOT IN USE
-    def _write(self, address, data=0):
-        data=self._convert_hex_to_ascii(data)
-        length=len(data)
-        format=">"+str(length)+"s"
-        self._ser.write("S"+chr(address|0x00)+chr(length)\
-                        +struct.pack(format,data)+"P")
-        time.sleep(self._wait*length)
-        return(self._ser.readline().strip())
-        pass
 
     ## reads multi byte data
     # @param address 8bit I2C slave address in HEX
     # @param length bytes to read
     # @return response string from device
-    def read2(self, address, length = 1):
+    def read(self, address, length = 1):
         packet = ['S', 'P']
-        address = self.convert_hex_to_ascii2(address,0xa0)
+        address = self.convert_hex_to_ascii(address,0xa0)
         alength = len(address) / 2
         packet.insert(1, chr(ord(address[0]) | 1))
         packet.insert(1, address[1])
-        for _l in self.convert_hex_to_ascii2(length, 0xd0):
+        for _l in self.convert_hex_to_ascii(length, 0xd0):
             packet.insert(3, _l)
 #        print packet
         for _p in packet:
@@ -82,121 +63,79 @@ class serial2i2c(object):
     # @param address 8bit I2C slave address in HEX
     # @param data data to send
     # @return sesponse string from device
-    def write2(self, address, data = 0):
+    def write(self, address, data = 0):
         packet = ['S', 'P']
-#        print address,self.convert_hex_to_ascii2(address,0xa0)
-        address = self.convert_hex_to_ascii2(address, 0xa0)
+#        print address,self.convert_hex_to_ascii(address,0xa0)
+        address = self.convert_hex_to_ascii(address, 0xa0)
         alength = len(address) / 2
         for _a in address:
             packet.insert(1, _a)
         
-        data = self.convert_hex_to_ascii2(data, 0xb0)
+        data = self.convert_hex_to_ascii(data, 0xb0)
         length = len(data) / 2
 
-        for _l in self.convert_hex_to_ascii2(length,0xc0):
+        for _l in self.convert_hex_to_ascii(length,0xc0):
             packet.insert(3, _l)
 
         for _d in data:
             packet.insert(5, _d)
         
-##        print packet
-##        data=self.convert_hex_to_ascii(data)
-##        length=len(data)
-##        format=">"+str(length)+"s"
-##        self._ser.write("S"+chr(address|0x00)+chr(length)\
-##                        +struct.pack(format,data)+"P")
         for _p in packet:
             self._ser.write(_p)
         time.sleep(self._wait * length * 2)
         return (self._ser.readline().strip())
-
-    ## NOT IN USE
-    def _write_and_read(self,address,wdata=0,rlength=1):
-        wdata=self.convert_hex_to_ascii2(wdata)
-        length=len(wdata)
-        format=">"+str(length)+"s"
-        print struct.pack(format,wdata)
-        packet="S"+chr(address|0x00)+chr(length)+struct.pack(format,wdata)+"S"+chr(address|0x01)+chr(rlength)+"P"
-#        print packet
-        self._ser.write(packet)
-##        self._ser.write("S"+chr(address|0x00)+chr(length)+struct.pack(format,wdata)\
-##                        +"S"+chr(address|0x01)+chr(rlength)\
-##                        +"P")
-        time.sleep(self._wait*rlength)
-        return(self._ser.readline().strip())
 
     ## writes data and then reads from same slave device
     # @param address I2C slave address in HEX
     # @param wdata data to send in HEX
     # @param rlength bytes to read
     # @return sesponse string from device
-    def write_and_read2(self, address, wdata = 0, rlength = 1):
+    def write_and_read(self, address, wdata = 0, rlength = 1):
         packet = ['S', 'S', 'P']
 
-        address = self.convert_hex_to_ascii2(address, 0xa0)
+        address = self.convert_hex_to_ascii(address, 0xa0)
         alength = len(address) / 2
         for _a in address:
             packet.insert(1, _a)
 
-        wdata = self.convert_hex_to_ascii2(wdata, 0xb0)
+        wdata = self.convert_hex_to_ascii(wdata, 0xb0)
         wlength = len(wdata) / 2
 
-        for _wl in self.convert_hex_to_ascii2(wlength, 0xc0):
+        for _wl in self.convert_hex_to_ascii(wlength, 0xc0):
             packet.insert(3, _wl)
 
         for _wd in wdata:
             packet.insert(5, _wd)
 
-##        print packet
-##        print "%2X"%(ord(address[0])|1)
         packet.insert(6 + wlength * 2, chr(ord(address[0]) | 1))
         packet.insert(6 + wlength * 2, address[1])
 
-        for _rl in self.convert_hex_to_ascii2(rlength, 0xd0):
+        for _rl in self.convert_hex_to_ascii(rlength, 0xd0):
             packet.insert(8 + wlength * 2, _rl)
 
-#        rlength=self.convert_hex_to_ascii2(rlength)
-
-        #print packet
         for _p in packet:
             self._ser.write(_p)
             
         time.sleep(self._wait * rlength * 2)
         return (self._ser.readline().strip())
 
-    ## writes raw data as string
     def raw_write(self, data="DEADBEAF"):
         self._ser.write(data)
-#        pass
 
     ## sends 'S' command packet to make start condition
     def start(self):
         self._ser.write("S")
-#        pass
         
     ## sends 'P' command packet to make stop condition
     def stop(self):
         self._ser.write("P")
         time.sleep(self._wait)
-#        pass
-
-    ## NOT IN USE
-    def _convert_hex_to_ascii(self,h):
-        chars_in_reverse = []
-        chars_in_reverse.append(chr(h & 0xFF))
-        h = h >> 8
-        while h != 0x0:
-            chars_in_reverse.append(chr(h & 0xFF))
-            h = h >> 8
-
-        chars_in_reverse.reverse()
-        return ''.join(chars_in_reverse)
 
     ## converts hex data to string
     # @param h data in HEX
     # @param mask mask data in HEX, LSB must be 0, MSB must not be 0 (0x?0, ?>0)
     # @return converted format in list
-    def convert_hex_to_ascii2(self, h, mask = 0xa0):
+    def convert_hex_to_ascii(self, h, mask = 0xa0):
         chars_in_reverse = []
         chars_in_reverse.append(chr(mask | (h & 0x0F)))
         chars_in_reverse.append(chr(mask | ((h >> 4) & 0x0F)))
@@ -206,7 +145,6 @@ class serial2i2c(object):
             chars_in_reverse.append(chr(mask | ((h >> 4) & 0x0F)))
             h = h >> 8
 
-#        print chars_in_reverse
         return (chars_in_reverse)
 
 class MyParser(object):
@@ -236,16 +174,16 @@ if __name__=="__main__":
 #    raw_input("wait, press enter to set channel 0")
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(0)
-    print dev.write_and_read2(0xD0,0xD0,16)
+    print dev.write_and_read(0xD0,0xD0,16)
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(1)
-    print dev.write_and_read2(0xD0,0xD0,16)
+    print dev.write_and_read(0xD0,0xD0,16)
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(2)
-    print dev.write_and_read2(0xD0,0xD0,16)
+    print dev.write_and_read(0xD0,0xD0,16)
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(3)
-    print dev.write_and_read2(0xD0,0xD0,16)
+    print dev.write_and_read(0xD0,0xD0,16)
 #    print dev.setChannel(0)
 #    print dev.ser.write(channel)
 #    print dev.ser.readline().strip()
@@ -260,7 +198,7 @@ if __name__=="__main__":
 ##    dev.raw_write(chr(0xd0))
 ##    dev.stop()
 ##    print dev.ser.readline().strip()
-##    print dev.write_and_read2(0xD0,0x50,16)
+##    print dev.write_and_read(0xD0,0x50,16)
 #    print dev.write_and_read(0xD0,0x50,16)
 # 0x141,0x00
 # 0x142,0xd2
@@ -270,35 +208,35 @@ if __name__=="__main__":
 # 0x142,0xa7
 # 0x142,0xa8
 # 0x142,0xb1
-##    print dev.write2(0xD2,0x4100)
-##    print dev.write2(0xD2,0x42d2)
-##    print dev.write2(0xD2,0x42b0)
-##    print dev.write2(0xD2,0x42a9)
-##    print dev.write2(0xD2,0x428a)
-##    print dev.write2(0xD2,0x42a7)
-##    print dev.write2(0xD2,0x42a8)
-##    print dev.write2(0xD2,0x42b1)
+##    print dev.write(0xD2,0x4100)
+##    print dev.write(0xD2,0x42d2)
+##    print dev.write(0xD2,0x42b0)
+##    print dev.write(0xD2,0x42a9)
+##    print dev.write(0xD2,0x428a)
+##    print dev.write(0xD2,0x42a7)
+##    print dev.write(0xD2,0x42a8)
+##    print dev.write(0xD2,0x42b1)
 ##    time.sleep(0.1)
-##    print dev.write2(0xD2,0x4701)
+##    print dev.write(0xD2,0x4701)
 ##    time.sleep(0.1)
-##    print dev.write_and_read2(0xD0,0x50,16)
-##    print dev.write_and_read2(0xD0,0xD0,16)
-#    print dev.write_and_read2(0xD0,0x5D00,16)
-##    print dev.write2(0xD0,0x5D01)
+##    print dev.write_and_read(0xD0,0x50,16)
+##    print dev.write_and_read(0xD0,0xD0,16)
+#    print dev.write_and_read(0xD0,0x5D00,16)
+##    print dev.write(0xD0,0x5D01)
 ##    time.sleep(0.1)
-##    print dev.write2(0xD0,0xD800)
-##    print dev.write2(0xD0,0xD846)
-##    print dev.write2(0xD0,0x5D00)
+##    print dev.write(0xD0,0xD800)
+##    print dev.write(0xD0,0xD846)
+##    print dev.write(0xD0,0x5D00)
     
-#    print dev.read2(0xD0,1)
+#    print dev.read(0xD0,1)
     while False:
-        print dev.write2(0xD0,0x5D00)
-##        print dev.write2(0xD0,0x5D01)
-#        print dev.write_and_read2(0xD0,0x50,16)
-#        print dev.write_and_read2(0xD0,0xD0,16)
-        #print dev.write_and_read2(0xD2,0x10,15)
-#        print dev.write_and_read2(0xD0,0x50,16)
-#        print dev.write_and_read2(0xD4,0x10,16)
+        print dev.write(0xD0,0x5D00)
+##        print dev.write(0xD0,0x5D01)
+#        print dev.write_and_read(0xD0,0x50,16)
+#        print dev.write_and_read(0xD0,0xD0,16)
+        #print dev.write_and_read(0xD2,0x10,15)
+#        print dev.write_and_read(0xD0,0x50,16)
+#        print dev.write_and_read(0xD4,0x10,16)
 ##    print "%02X"%(int(dev.write_and_read(0x90,0xdeadbeaf,50).split(',')[0],16))
 #    print dev.ser.readline().strip()
 
