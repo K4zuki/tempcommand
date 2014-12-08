@@ -248,7 +248,9 @@ if __name__=="__main__":
 ##    print dev.write(0xD0,0x5D00)
     
 #    print dev.read(0xD0,1)
-    dev.raw_write('R00102P')
+    dev.raw_write('R100102P')
+    print dev.raw_read()
+    dev.raw_write('W2'+chr(0xAA)+chr(0x55)+'P')
     print dev.raw_read()
     while False:
         print dev.write(0xD0,0x5D00)
