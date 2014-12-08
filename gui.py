@@ -442,7 +442,7 @@ class MainForm(npyscreen.ActionForm, tempcommand.tempcommand):
     # @param x.x target temperature
     def _temp(self,temp='30'):
         self._processing.value="TEMP"+str(temp)
-        self.Ttarget.value=str(temp)+" oC"
+        self._Ttarget.value=str(temp)+" oC"
         self._logfile.write( 'temperature set: '+temp+' oC\n')
         self.shellResponse( 'temperature set: '+temp+' oC')
         self.shellResponse( self.Chamber.setTemp(temp))
