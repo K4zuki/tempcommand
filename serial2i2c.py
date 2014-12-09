@@ -37,14 +37,14 @@ class serial2i2c(object):
     """
     _ser = 0
     _channel = 0
-    _wait = 1e-2
+    _wait = 1e-5
 
     ## constructor
     # @param port COM port which device is conected
     # @param baud baudrate
     def __init__(self, port = 'com1', baud = '115200'):
         try:
-            self._ser = serial.Serial(port,baudrate=baud,timeout=1)
+            self._ser = serial.Serial(port, baudrate = baud, timeout = 1)
         except:
             raise
 
@@ -53,9 +53,9 @@ class serial2i2c(object):
     # @return response from module
     def setChannel(self, channel = 0):
         self._channel = channel
-        self._ser.write("C" + str(self._channel) + "P")
+        self.raw_write("C" + str(self._channel) + "P")
         time.sleep(self._wait)
-        return (self._ser.readline().strip())
+        return self.raw_read()
 
     ## reads multi byte data
     # @param address 8bit I2C slave address in HEX
@@ -63,25 +63,29 @@ class serial2i2c(object):
     # @return response string from device
     def read(self, address, length = 1):
         packet = ['S', 'P']
-        address = self.convert_hex_to_ascii(address,0xa0)
+
+        address = self.convert_hex_to_ascii(address, 0xa0)
         alength = len(address) / 2
         packet.insert(1, chr(ord(address[0]) | 1))
         packet.insert(1, address[1])
+
         for _l in self.convert_hex_to_ascii(length, 0xd0):
             packet.insert(3, _l)
-#        print packet
-        for _p in packet:
-            self._ser.write(_p)
+
+#        for _p in packet:
+#            self._ser.write(_p)
+        self.raw_write("".join(packet))
+
         time.sleep(self._wait * length * 2)
-        return (self._ser.readline().strip())
+        return self.raw_read()
 
     ## writes multi byte data
     # @param address 8bit I2C slave address in HEX
     # @param data data to send
-    # @return sesponse string from device
+    # @return response string from device
     def write(self, address, data = 0):
         packet = ['S', 'P']
-#        print address,self.convert_hex_to_ascii(address,0xa0)
+
         address = self.convert_hex_to_ascii(address, 0xa0)
         alength = len(address) / 2
         for _a in address:
@@ -96,16 +100,18 @@ class serial2i2c(object):
         for _d in data:
             packet.insert(5, _d)
         
-        for _p in packet:
-            self._ser.write(_p)
+#        for _p in packet:
+#            self._ser.write(_p)
+        self.raw_write("".join(packet))
+
         time.sleep(self._wait * length * 2)
-        return (self._ser.readline().strip())
+        return self.raw_read()
 
     ## writes data and then reads from same slave device
     # @param address I2C slave address in HEX
     # @param wdata data to send in HEX
     # @param rlength bytes to read
-    # @return sesponse string from device
+    # @return response string from device
     def write_and_read(self, address, wdata = 0, rlength = 1):
         packet = ['S', 'S', 'P']
 
@@ -129,15 +135,18 @@ class serial2i2c(object):
         for _rl in self.convert_hex_to_ascii(rlength, 0xd0):
             packet.insert(8 + wlength * 2, _rl)
 
-        for _p in packet:
-            self._ser.write(_p)
+#        for _p in packet:
+#            self._ser.write(_p)
+        self.raw_write("".join(packet))
             
         time.sleep(self._wait * rlength * 2)
-        return (self._ser.readline().strip())
+        return self.raw_read()
 
+    ## sends raw data on serial port
     def raw_write(self, data="DEADBEAF"):
         self._ser.write(data)
         
+    ## reads raw data from serial port
     def raw_read(self):
         return (self._ser.readline().strip())
 
@@ -150,6 +159,35 @@ class serial2i2c(object):
         self._ser.write("P")
         time.sleep(self._wait)
 
+    ## reads data from device's own register
+    # @param registers register addresses
+    # @return response string from device
+    def reg_read(self, registers = "012"):
+        packet = ['R', 'P']
+        
+        packet.insert(1, registers)
+        
+        self.raw_write("".join(packet))
+        return self.raw_read()
+
+    ## writes data into device's own register
+    # @param register list of number and data list
+    # @return response string from device
+    def reg_write(self, pair = [ ['1', 0xFF], ]):
+        packet = ['W', 'P']
+        
+        for _p in pair:
+            reg, data = _p
+            data = self.convert_hex_to_ascii(data, 0xA0)
+            data.reverse()
+
+            packet.insert(1, reg)
+            packet.insert(2, "".join(data))
+
+        self.raw_write("".join(packet))
+        
+        return self.raw_read()
+    
     ## converts hex data to string
     # @param h data in HEX
     # @param mask mask data in HEX, LSB must be 0, MSB must not be 0 (0x?0, ?>0)
@@ -166,16 +204,18 @@ class serial2i2c(object):
 
         return (chars_in_reverse)
 
-class MyParser(object):
-    def __init__(self):
-        self._parser = argparse.ArgumentParser(description="hogeeee")
-        self._parser.add_argument('--port','-p', help='number or name of serial port', default='com1')
-#        self._parser.add_argument('--port','-p', help='number or name of serial port', default='/dev/ttyACM0')
-#        self._parser.add_argument('--mon','-m', help='number or name of serial port', default='/dev/ttyACM0')
-        self._parser.add_argument('--baud','-b', help='baudrate of serial port', default='115200')#460800
-        self.args=self._parser.parse_args(namespace=self)        
 
 if __name__=="__main__":
+    class MyParser(object):
+        def __init__(self):
+            self._parser = argparse.ArgumentParser(description="hogeeee")
+            self._parser.add_argument('--port','-p', help='number or name of serial port', default='com1')
+    #        self._parser.add_argument('--port','-p', help='number or name of serial port', default='/dev/ttyACM0')
+    #        self._parser.add_argument('--mon','-m', help='number or name of serial port', default='/dev/ttyACM0')
+            self._parser.add_argument('--baud','-b', help='baudrate of serial port', default='115200')#460800
+            self.args=self._parser.parse_args(namespace=self)        
+
+
 #    parser.print_help()
     parser = MyParser()
 #    args=parser.parse_args()
@@ -193,7 +233,12 @@ if __name__=="__main__":
 #    raw_input("wait, press enter to set channel 0")
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(0)
-    print dev.write_and_read(0xD0,0xD0,16)
+    if False:
+        for hoge in range(0x050,0x300,0x10):
+            print "%03X," %(hoge),
+            print dev.write_and_read(0xFE&(0xD0|hoge>>7),hoge,16)
+
+
 ###    raw_input("wait, press enter to transferring data")
 ###    print dev.setChannel(1)
 ###    print dev.write_and_read(0xD0,0xD0,16)
@@ -203,22 +248,7 @@ if __name__=="__main__":
 ###    raw_input("wait, press enter to transferring data")
 ###    print dev.setChannel(3)
 ###    print dev.write_and_read(0xD0,0xD0,16)
-#    print dev.setChannel(0)
-#    print dev.ser.write(channel)
-#    print dev.ser.readline().strip()
-#    raw_input("wait, press enter to set channel 1")
-#    print dev.ser.write("C1P")
-#    print dev.ser.readline().strip()
 
-#    raw_input("wait, press enter to send write command")
-##    print dev.write(0xD0,0xdeadbeaf)
-##    ser.write(i2cw)
-##    dev.start()
-##    dev.raw_write(chr(0xd0))
-##    dev.stop()
-##    print dev.ser.readline().strip()
-##    print dev.write_and_read(0xD0,0x50,16)
-#    print dev.write_and_read(0xD0,0x50,16)
 # 0x141,0x00
 # 0x142,0xd2
 # 0x142,0xb0
@@ -227,14 +257,14 @@ if __name__=="__main__":
 # 0x142,0xa7
 # 0x142,0xa8
 # 0x142,0xb1
-##    print dev.write(0xD2,0x4100)
-##    print dev.write(0xD2,0x42d2)
-##    print dev.write(0xD2,0x42b0)
-##    print dev.write(0xD2,0x42a9)
-##    print dev.write(0xD2,0x428a)
-##    print dev.write(0xD2,0x42a7)
-##    print dev.write(0xD2,0x42a8)
-##    print dev.write(0xD2,0x42b1)
+##    print dev.write(0xD2,0x4100) 
+##    print dev.write(0xD2,0x42d2) 
+##    print dev.write(0xD2,0x42b0) 
+##    print dev.write(0xD2,0x42a9) 
+##    print dev.write(0xD2,0x428a) 
+##    print dev.write(0xD2,0x42a7) 
+##    print dev.write(0xD2,0x42a8) 
+##    print dev.write(0xD2,0x42b1) 
 ##    time.sleep(0.1)
 ##    print dev.write(0xD2,0x4701)
 ##    time.sleep(0.1)
@@ -248,8 +278,8 @@ if __name__=="__main__":
 ##    print dev.write(0xD0,0x5D00)
     
 #    print dev.read(0xD0,1)
-    dev.raw_write('R100102P')
-    print dev.raw_read()
+    print dev.reg_read('012')
+    print dev.reg_write([ ['2',0xAB],['0',0xFF] ])
     dev.raw_write('W2'+chr(0xAA)+chr(0x55)+'P')
     print dev.raw_read()
     while False:
