@@ -277,10 +277,20 @@ if __name__=="__main__":
     
 #    print dev.read(0xD0,1)
     print dev.reg_read('012')
-    print dev.reg_write([ ['2',0xAB],['0',0xFF] ])
+    print dev.reg_write([ ['2',0xFF],['0',0xFF] ])
     dev.raw_write('IP')
     print dev.raw_read()
-    dev.raw_write('O'+"".join(dev._hex2ascii(0xAB))+'P')
+    try:
+        while True:
+            for hoge in range(0,256):
+                foo=dev._hex2ascii(hoge)
+                foo.reverse()
+                dev.raw_write('O'+"".join(foo)+'P')
+                print dev.raw_read()
+    except:
+        print dev.raw_read()
+    print dev.reg_read('012')
+    dev.raw_write('IP')
     print dev.raw_read()
     while False:
         print dev.write(0xD0, 0x5D00)
