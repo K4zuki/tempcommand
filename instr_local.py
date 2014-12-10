@@ -6,12 +6,6 @@ import datetime
 import os
 
 import serial2i2c
-#try:
-#    import uli
-#    import usbio.usbio as usbio
-#except:
-#    import dummyULI as uli 
-#    import dummyUSB as usbio
 
 ## power supply class
 # for Agilent/Keysight E3640A
@@ -186,17 +180,12 @@ class sourcemeter(object):
     ## enables output
     def _output_enable (self): #, channel = 1):
         if self._isUse == True:
-#            if (channel == 1):
             self._SMU.write(':OUTP:STAT 1;:INIT')
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
 
     ## disables output
     def _output_disable (self): #, channel = 1):
         if self._isUse == True:
             self._SMU.write(':OUTP:STAT 0')
-#            if (channel != 1):
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
 
     ## output disable/enable
     # @param on True to set output on, False to set off
@@ -211,56 +200,36 @@ class sourcemeter(object):
     # @param volt voltage to set
     def SetVoltage (self, volt='1.0'): #, channel = 1):
         if self._isUse == True:
-#            if (channel == 1):
             self._SMU.write(":SOUR:FUNC VOLT")
             self._SMU.write(":SOUR:VOLT:MODE FIX")
             self._SMU.write(":SOUR:VOLT " +volt)
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
 
     ## sets output current if current source mode; NOT IN USE 
     def SetCurrent (self, current='1e-6'): #, channel = 1):
         if self._isUse == True:
-#            if (channel == 1):
             self._SMU.write(":SOUR:FUNC CURR")
             self._SMU.write(":SOUR:CURR:MODE FIX")
             self._SMU.write(":SOUR:CURR " +current)
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
 
     ## sets voltage limit if current source mode; NOT IN USE
     def SetVoltageLimit (self, voltage): #, channel = 1):
         if self._isUse == True:
-#            if (channel == 1):
             self._SMU.write(":SOUR:FUNC CURR")
             self._SMU.write(":SOUR:CURR:MODE FIX")
             self._SMU.write(":SENS:VOLT:DC:PROT:LEV " +voltage)
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
 
     ## sets current limit if voltage source mode
     # @param current current to set
     def SetCurrentLimit (self, current='1e-6'): #, channel = 1):
         if self._isUse == True:
-#            if (channel == 1):
             self._SMU.write(":SOUR:FUNC VOLT")
             self._SMU.write(":SOUR:VOLT:MODE FIX")
             self._SMU.write(":SENS:CURR:DC:PROT:LEV " +current)
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
 
     ## sets output voltage range
     # @param volt 'auto' if autorange
     def SetVoltageRange (self, volt='auto'): #, channel = 1, mode = 'source'):
         if self._isUse == True:
-#            if (channel == 1):
-#                if (mode == 'sense'):
-#                    if (voltage != 'auto'):
-#                        self._SMU.write(':SENS:VOLT:RANG %f' % voltage)
-#                    else:
-#                        self._SMU.write(':SENS:VOLT:DC:RANGE:AUTO 1')
-#
-#                elif (mode == 'source'):
             if (voltage != 'auto'):
                 self._SMU.write(":SOUR:FUNC VOLT")
                 self._SMU.write(":SOUR:VOLT:MODE FIX")
@@ -268,36 +237,14 @@ class sourcemeter(object):
             else:
                 self._SMU.write(':SOUR:VOLT:DC:RANGE:AUTO 1')
 
-#                else:
-#                    raise Exception('Invalid Mode Selection ("source" or "sense")')
-
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
-
     ## sets output current range
     # @param current 'auto' if autorange
     def SetCurrentRange (self, current): #, channel = 1, mode = 'source'):
         if self._isUse == True:
-#            if (channel == 1):
-#                if (mode == 'sense'): # reads current
             if (current != 'auto'):
                 self._SMU.write(':SENS:CURR:RANG %f' % current)
             else:
                 self._SMU.write(':SENS:CURR:DC:RANGE:AUTO 1')
-
-#                elif (mode == 'source'): # sources current
-#                    if (current != 'auto'):
-#                        self._SMU.write(":SOUR:FUNC CURR")
-#                        self._SMU.write(":SOUR:CURR:MODE FIX")
-#                        self._SMU.write(":SOUR:CURR:RANG %f"%(current) )
-#                    else:
-#                        self._SMU.write(':SOUR:CURR:DC:RANGE:AUTO 1')
-
-#                else:
-#                    raise Exception('Invalid Mode Selection ("source" or "sense")')
-
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
 
     ## reads output depends on mode
     # @param mode 'current' to read current in [A]
@@ -334,7 +281,6 @@ class sourcemeter(object):
             avg_mode = 'MOV'
             filt = 'ON'
             nplc = 1
-#            if (channel == 1):
             self._SMU.write("*CLS")
             self._SMU.write(":ABOR")
             self._SMU.write(":ARM:COUN 1;SOUR TIM")
@@ -346,18 +292,11 @@ class sourcemeter(object):
 
             return float(self._SMU.ask(':SENSE:DATA:LAT?'))
 
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
-
     #Set I range for the display
     def set_range_display (self, digits = 7): #, channel = 1):
         if self._isUse == True:
-#            if (channel == 1):
             self._SMU.write(':DISP:DIG %d' % int(digits) )
             return
-
-#            else:
-#                raise Exception("Invalid channel selection CH{0}" .fo_rmat(channel))
 
         def error_query(self):
             ''' the error queue hold error and status messages
@@ -552,11 +491,10 @@ class serial_i2c(object):
 
     ## writes data to register address in selected slave address
     # @param slave slave address in HEX
-    # @reg register address in HEX
-    # @data data in HEX
+    # @param reg register address in HEX
+    # @param data data in HEX
     # @return created packet
     def regWrite(self, slave=0x90, reg=0x00, data=0x00):
-#        packet=['S','P']
         packet=[]
         if self._isUse == True:
             slave=self._I2C.convert_hex_to_ascii2(slave,mask=0xa0)
@@ -576,8 +514,8 @@ class serial_i2c(object):
     
             packet.insert(0,'S')
             packet.append('P')
-            for hoge in packet:
-                self._I2C.raw_write(hoge)
+
+            self._I2C.raw_write("".join(hoge))
 
         return packet
 
@@ -599,7 +537,7 @@ class serial_i2c(object):
             channel = self._Channel
         return channel
 
-    ## disconnect connection
+    ## close connection
     def disconnect(self):
         self._I2C.close()
 
@@ -651,9 +589,6 @@ class dummy(object):
 
     def reset (self):
         pass
-
-#    def sense_4W(self,on=False):
-#        pass
 
     def SetVoltageLimit (self, voltage): #, channel = 1):
         pass
