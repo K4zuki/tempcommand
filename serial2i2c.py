@@ -64,12 +64,12 @@ class serial2i2c(object):
     def read(self, address, length = 1):
         packet = ['S', 'P']
 
-        address = self.convert_hex_to_ascii(address, 0xa0)
+        address = self._hex2ascii(address, 0xa0)
         alength = len(address) / 2
         packet.insert(1, chr(ord(address[0]) | 1))
         packet.insert(1, address[1])
 
-        for _l in self.convert_hex_to_ascii(length, 0xd0):
+        for _l in self._hex2ascii(length, 0xd0):
             packet.insert(3, _l)
 
 #        for _p in packet:
@@ -86,15 +86,15 @@ class serial2i2c(object):
     def write(self, address, data = 0):
         packet = ['S', 'P']
 
-        address = self.convert_hex_to_ascii(address, 0xa0)
+        address = self._hex2ascii(address, 0xa0)
         alength = len(address) / 2
         for _a in address:
             packet.insert(1, _a)
         
-        data = self.convert_hex_to_ascii(data, 0xb0)
+        data = self._hex2ascii(data, 0xb0)
         length = len(data) / 2
 
-        for _l in self.convert_hex_to_ascii(length,0xc0):
+        for _l in self._hex2ascii(length,0xc0):
             packet.insert(3, _l)
 
         for _d in data:
@@ -115,15 +115,15 @@ class serial2i2c(object):
     def write_and_read(self, address, wdata = 0, rlength = 1):
         packet = ['S', 'S', 'P']
 
-        address = self.convert_hex_to_ascii(address, 0xa0)
+        address = self._hex2ascii(address, 0xa0)
         alength = len(address) / 2
         for _a in address:
             packet.insert(1, _a)
 
-        wdata = self.convert_hex_to_ascii(wdata, 0xb0)
+        wdata = self._hex2ascii(wdata, 0xb0)
         wlength = len(wdata) / 2
 
-        for _wl in self.convert_hex_to_ascii(wlength, 0xc0):
+        for _wl in self._hex2ascii(wlength, 0xc0):
             packet.insert(3, _wl)
 
         for _wd in wdata:
@@ -132,11 +132,9 @@ class serial2i2c(object):
         packet.insert(6 + wlength * 2, chr(ord(address[0]) | 1))
         packet.insert(6 + wlength * 2, address[1])
 
-        for _rl in self.convert_hex_to_ascii(rlength, 0xd0):
+        for _rl in self._hex2ascii(rlength, 0xd0):
             packet.insert(8 + wlength * 2, _rl)
 
-#        for _p in packet:
-#            self._ser.write(_p)
         self.raw_write("".join(packet))
             
         time.sleep(self._wait * rlength * 2)
@@ -178,7 +176,7 @@ class serial2i2c(object):
         
         for _p in pair:
             reg, data = _p
-            data = self.convert_hex_to_ascii(data, 0xA0)
+            data = self._hex2ascii(data, 0xA0)
             data.reverse()
 
             packet.insert(1, reg)
@@ -192,7 +190,7 @@ class serial2i2c(object):
     # @param h data in HEX
     # @param mask mask data in HEX, LSB must be 0, MSB must not be 0 (0x?0, ?>0)
     # @return converted format in list
-    def convert_hex_to_ascii(self, h, mask = 0xa0):
+    def _hex2ascii(self, h, mask = 0xa0):
         chars_in_reverse = []
         chars_in_reverse.append(chr(mask | (h & 0x0F)))
         chars_in_reverse.append(chr(mask | ((h >> 4) & 0x0F)))
@@ -280,7 +278,9 @@ if __name__=="__main__":
 #    print dev.read(0xD0,1)
     print dev.reg_read('012')
     print dev.reg_write([ ['2',0xAB],['0',0xFF] ])
-    dev.raw_write('W2' + chr(0xAA) + chr(0x55) + 'P')
+    dev.raw_write('IP')
+    print dev.raw_read()
+    dev.raw_write('O'+"".join(dev._hex2ascii(0xAB))+'P')
     print dev.raw_read()
     while False:
         print dev.write(0xD0, 0x5D00)
@@ -308,9 +308,9 @@ if __name__=="__main__":
 ##    ]
 ##    nerodata2=""
 ##    for hoge in nerodata:
-##        print dev.convert_hex_to_ascii(hoge),
+##        print dev._hex2ascii(hoge),
 ##    
-###    print dev.convert_hex_to_ascii(nerodata)
+###    print dev._hex2ascii(nerodata)
 ##    
 ##    print dev.write(neroaddr,nerodata)
     
