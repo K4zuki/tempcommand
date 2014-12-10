@@ -222,9 +222,9 @@ if __name__=="__main__":
 #    print args
 #    print args.port, args.baud
     
-    port=parser.args.port # port number, different in OSes
-    baud=parser.args.baud
-    dev=serial2i2c(port,baud)
+    port = parser.args.port # port number, different in OSes
+    baud = parser.args.baud
+    dev = serial2i2c(port, baud)
 ##    channel="C0P"
 ##    i2cw="S"+chr(0x80)+chr(0x04)+struct.pack(">4B",0xde,0xad,0xbe,0xaf)+"P"
 ##    i2crw="S"+chr(0x80)+chr(0x04)+struct.pack(">4B",0xde,0xad,0xbe,0xaf)+"S"+chr(0x81)+chr(0x04)+"P"
@@ -234,9 +234,9 @@ if __name__=="__main__":
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(0)
     if False:
-        for hoge in range(0x050,0x300,0x10):
+        for hoge in range(0x050, 0x300, 0x10):
             print "%03X," %(hoge),
-            print dev.write_and_read(0xFE&(0xD0|hoge>>7),hoge,16)
+            print dev.write_and_read(0xFE&(0xD0|hoge>>7), hoge, 16)
 
 
 ###    raw_input("wait, press enter to transferring data")
@@ -280,10 +280,10 @@ if __name__=="__main__":
 #    print dev.read(0xD0,1)
     print dev.reg_read('012')
     print dev.reg_write([ ['2',0xAB],['0',0xFF] ])
-    dev.raw_write('W2'+chr(0xAA)+chr(0x55)+'P')
+    dev.raw_write('W2' + chr(0xAA) + chr(0x55) + 'P')
     print dev.raw_read()
     while False:
-        print dev.write(0xD0,0x5D00)
+        print dev.write(0xD0, 0x5D00)
 ##        print dev.write(0xD0,0x5D01)
 #        print dev.write_and_read(0xD0,0x50,16)
 #        print dev.write_and_read(0xD0,0xD0,16)
