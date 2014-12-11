@@ -43,6 +43,7 @@ class MainForm(npyscreen.ActionForm, tempcommand.tempcommand):
     def create(self): 
         self.commandset={}
 
+        self.add_command("NOP",     self._nop)
         self.add_command("EOF",     self._eof)
         self.add_command("TEMP",    self._temp)
         self.add_command("SAMPLE",  self._sample)
@@ -70,8 +71,8 @@ class MainForm(npyscreen.ActionForm, tempcommand.tempcommand):
 
 
         self._scrfilename = self.add(npyscreen.TitleFilename, name = "Filename:",
-#            value="W:\\Tokyo\\Home\\kyamamot\\common\\GitHub\\tempcommand\\")
-            value="W:\\Tokyo\\Data\\Design Center\\")
+            value="W:\\Tokyo\\Home\\kyamamot\\common\\GitHub\\tempcommand\\")
+#            value="W:\\Tokyo\\Data\\Design Center\\")
 #            value="W:\\Tokyo\\Data\\Design Center\\Nori2\\Evaluation\\OL1_02.txt")
         self._psu  = self.add(npyscreen.TitleText, name = "PSU:", value="24", width=35)
 
@@ -437,6 +438,13 @@ class MainForm(npyscreen.ActionForm, tempcommand.tempcommand):
         self.shellResponse('EndOfFile triggered')
         return -1
 
+    ## no operation NOP
+    # no parameters
+    def _nop(self,dummy='-1'):
+        self.shellResponse('--=-=-=-=-=-=-=--')
+        self._outfile.write("-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n")
+        return 0
+
     ## command callback TEMP
     # TEMP x.x
     # @param x.x target temperature
@@ -451,7 +459,7 @@ class MainForm(npyscreen.ActionForm, tempcommand.tempcommand):
         while 1:#release code
             i+=1#release code
             current,target,absolute,hoge = self.Chamber.getTemp()
-            self.Tcurrent.value="    "+str(current)+" oC    >>>"
+            self._Tcurrent.value="    "+str(current)+" oC    >>>"
             diff=abs(float(current)-float(target))
             self._logfile.write ( current+","+target+","+absolute+","+hoge+","+str(diff)+"\n")
             self.shellResponse ( str(i)+",\t current="+current+
