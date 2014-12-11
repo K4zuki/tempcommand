@@ -379,7 +379,7 @@ class multimeter2(object):
 
     ## sets channel(s) to use
     # @param chanlist channel list
-    def set_Channel(self, chanlist):
+    def setChannel(self, chanlist):
         if self._isUse == True:
             self._channels = chanlist
             self._VOLTMETER2.write('CONF:VOLT:DC 10,1.0e-5,' +self._channels)
@@ -497,10 +497,10 @@ class serial_i2c(object):
     def regWrite(self, slave=0x90, reg=0x00, data=0x00):
         packet=[]
         if self._isUse == True:
-            slave=self._I2C.convert_hex_to_ascii2(slave,mask=0xa0)
-            reg=self._I2C.convert_hex_to_ascii2(reg,mask=0xb0)
-            data=self._I2C.convert_hex_to_ascii2(data,mask=0xc0)
-            length=self._I2C.convert_hex_to_ascii2(len(reg)/2+len(data)/2,mask=0xd0)
+            slave=self._I2C._hex2ascii(slave,mask=0xa0)
+            reg=self._I2C._hex2ascii(reg,mask=0xb0)
+            data=self._I2C._hex2ascii(data,mask=0xc0)
+            length=self._I2C._hex2ascii(len(reg)/2+len(data)/2,mask=0xd0)
             
             slave.reverse()
             length.reverse()

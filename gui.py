@@ -290,8 +290,8 @@ class MainForm(npyscreen.ActionForm, tempcommand.tempcommand):
         self.A34401A = instr_local.dummy()
         try:
             self.E3640A = instr_local.powersupply(rm,self._psu.get_value())
-            self.Chamber = instr_local._chamber(rm,self._chamber.get_value(),self.isctrl_chamber.value)
-            self.A34401A = instr_local.multimeter(rm,self.dmm1.get_value(),self._isUSB_dmm1.value)
+            self.Chamber = instr_local.chamber(rm,self._chamber.get_value(),self._isctrl_chamber.value)
+            self.A34401A = instr_local.multimeter(rm,self._dmm1.get_value(),self._isUSB_dmm1.value)
         except:
             npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
                 +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
@@ -305,7 +305,7 @@ class MainForm(npyscreen.ActionForm, tempcommand.tempcommand):
         self.A34970A = instr_local.dummy()
         if self._isuse_dmm2.value:
             try:
-                self.A34970A = instr_local.multimeter2(rm,self.dmm2.get_value(),self._isuse_dmm2.value)
+                self.A34970A = instr_local.multimeter2(rm,self._dmm2.get_value(),self._isuse_dmm2.value)
             except:
                 npyscreen.notify_confirm("".join(traceback.format_tb(sys.exc_info()[2]))+": "
                     +str(sys.exc_info()[1]),title="ERROR REPORT",editw=1)
