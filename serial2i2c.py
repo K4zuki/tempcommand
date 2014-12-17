@@ -32,12 +32,17 @@ class serial2i2c(object):
     "R| '0'| '1'| ...| P"
     "W| '0' 0x_a _a| P"
     "W| '0' 0x_a _a| '1' 0x_b _b| ...| P"
-    "I| P"
-    "O| 0x_a _a| P"
+    "I| '0'| P"
+    "O| '0'| 0x_a _a| P"
     """
     _ser = 0
     _channel = 0
-    _wait = 1e-5
+    _wait = 1e-3
+    CHIP_ID = '0'
+    GPIO0_STAT = '1'
+    GPIO1_STAT = '2'
+    GPIO0_CONF = '3'
+    GPIO1_CONF = '4'
 
     ## constructor
     # @param port COM port which device is conected
@@ -182,7 +187,10 @@ class serial2i2c(object):
             packet.insert(1, reg)
             packet.insert(2, "".join(data))
 
+        length=len(packet)
         self.raw_write("".join(packet))
+
+        time.sleep(self._wait * length)
         
         return self.raw_read()
     
@@ -231,10 +239,19 @@ if __name__=="__main__":
 #    raw_input("wait, press enter to set channel 0")
     raw_input("wait, press enter to transferring data")
     print dev.setChannel(0)
+    dev.write(0xD2,0x4100) 
+    dev.write(0xD2,0x42d2) 
+    dev.write(0xD2,0x42b0) 
+    dev.write(0xD2,0x42a9) 
+    dev.write(0xD2,0x428a) 
+    dev.write(0xD2,0x42a7) 
+    dev.write(0xD2,0x42a8) 
+    dev.write(0xD2,0x42b1) 
+    print dev.write(0xD2,0x4701) 
     if False:
         for hoge in range(0x050, 0x300, 0x10):
             print "%03X," %(hoge),
-            print dev.write_and_read(0xFE&(0xD0|hoge>>7), hoge, 16)
+            print dev.write_and_read((0xD0|((hoge&0x300)>>7)), hoge&0xFF, 16)
 
 
 ###    raw_input("wait, press enter to transferring data")
@@ -276,22 +293,21 @@ if __name__=="__main__":
 ##    print dev.write(0xD0,0x5D00)
     
 #    print dev.read(0xD0,1)
-    print dev.reg_read('012')
-    print dev.reg_write([ ['2',0xFF],['0',0xFF] ])
-    dev.raw_write('IP')
+    print dev.reg_read('01234')
+    print dev.reg_write([ [dev.GPIO0_STAT,0xFF],[dev.GPIO0_CONF,0xFF] ])
+    dev.raw_write('I01234P')
     print dev.raw_read()
     try:
         while True:
             for hoge in range(0,256):
-                foo=dev._hex2ascii(hoge)
-                foo.reverse()
-                dev.raw_write('O'+"".join(foo)+'P')
-                print dev.raw_read()
+                print dev.reg_write([[dev.GPIO0_STAT,hoge]])
     except:
         print dev.raw_read()
-    print dev.reg_read('012')
-    dev.raw_write('IP')
-    print dev.raw_read()
+        print dev.reg_write([[dev.GPIO0_STAT,0x00]])
+
+    print "reg_read = "+dev.reg_read('01234')
+    dev.raw_write('I'+dev.GPIO0_STAT+'P')
+    print "port_read = "+ dev.raw_read()
     while False:
         print dev.write(0xD0, 0x5D00)
 ##        print dev.write(0xD0,0x5D01)
