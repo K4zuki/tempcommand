@@ -17,7 +17,14 @@ import time
 # [_] Z 0x5A power down
 # [X] C 0x43 change channel
 
-## RS232C to I2C converter using mbed
+##@brief RS232C to I2C converter using \e mbed
+#@code register dump
+#    dev = serial2i2c(port = 'com8', baud = '115200')
+#
+#    for hoge in range(0x050, 0x300, 0x10):
+#        print "%03X," %(hoge),
+#        print dev.write_and_read((0xD0|((hoge&0x300)>>7)), hoge&0xFF, 16)
+#@endcode
 class serial2i2c(object):
     """
     serial2i2c: RS232C to I2C converter using mbed
@@ -38,9 +45,17 @@ class serial2i2c(object):
     _ser = 0
     _channel = 0
     _wait = 1e-3
+    ## register 0; ro; returns chip ID to identify device
     CHIP_ID = '0'
+    
+    ## register 1
+    #@brief Readable / Writable
+    #@param status 1 to set 'H' or 0 to set 'L' on each corresponding GPIO0 pin
+    #@return status of GPIO0
     GPIO0_STAT = '1'
+    ## register 2; rw; returns status of GPIO1 if enabled, 0xAA if disabled
     GPIO1_STAT = '2'
+    ## register 2; rw; returns status of GPIO1 if enabled
     GPIO0_CONF = '3'
     GPIO1_CONF = '4'
 
