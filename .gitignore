@@ -61,3 +61,4 @@ latex/
 /OL1.txt~
 *.csv
 dist/
+*.txt

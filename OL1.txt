@@ -27,17 +27,22 @@ volt3.7
 //sample
 //temp30
 //Schan0
-//for -40+-20+0+20+30+40+60+80+100+120;temp
+//for -40+-20+0+20+30+40+60+80+100+120+140;temp
     call(hoge.txt)
     ucall(0=hoge.txt)
     ucall(1=hoge.txt)
+    email(kazuki.yamamoto@diasemi.com;nb-ex-casarray.diasemi.com)
+    CHAN 127+111+102+116+112+101
+    for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg01=|reg02=|reg03=|reg04=|ureg0+1:01=
+        sample
+    loop
 //loop
 eof
 
-for 0+1+2+3;schan
-    Sbase90
-    Sregaa=55
-loop
+//for 0+1+2+3;schan
+//    Sbase90
+//    Sregaa=55
+//loop
 //eof
 base90 //0x90(8)=0x48(7)
 ubase0+1=90
@@ -60,41 +65,42 @@ ureg0+1:0A=10
     
 CHAN 101+102+106+107+111+112+116+121+122+126+127+131+132+136, sample
 
-eof
+//eof
 
 for -40+-20+0+20+30+40+60+80+100+120;temp
 //    dely2
 //    CHAN101+102+106+111+112+121+122+127+132
-    CHAN 127, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg01=
+    CHAN 127+111+102+116+112+101+122
+    for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg01=|reg02=|reg03=|reg04=|ureg0:01=|ureg1:01=|ureg0:02=|ureg0+1:03=|ureg0+1:04=
         sample
     loop
-    CHAN 111, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg02=
+//    CHAN 111, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg02=
+//        sample
+//    loop
+//    CHAN 102, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg03=
+//        sample
+//    loop
+//    CHAN 116, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg04=
+//        sample
+//    loop
+//    CHAN 112+101, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:01=
+//        sample
+//    loop
+//    CHAN 122, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0:02=
+//        sample
+//    loop
+//    CHAN 132, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:03=
+//        sample
+//    loop
+//    for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:04=
+//        sample
+//    loop
+    CHAN 116+136, for 08+09+0a+0b+0c+0d+0e+0f;reg06=|ureg0:06=
         sample
     loop
-    CHAN 102, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg03=
-        sample
-    loop
-    CHAN 116, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;reg04=
-        sample
-    loop
-    CHAN 112+101, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:01=
-        sample
-    loop
-    CHAN 122, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0:02=
-        sample
-    loop
-    CHAN 132, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:03=
-        sample
-    loop
-    for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:04=
-        sample
-    loop
-    CHAN 116, for 08+09+0a+0b+0c+0d+0e+0f;reg06=
-        sample
-    loop
-    CHAN 136, for 08+09+0a+0b+0c+0d+0e+0f;ureg0:06=
-        sample
-    loop
+//    CHAN 136, for 08+09+0a+0b+0c+0d+0e+0f;ureg0:06=
+//        sample
+//    loop
     CHAN 126+131, for 10+11+12+13+14+15+16+17+18+19+1a+1b+1c+1d+1e+1f;ureg0+1:0A=
         sample
     loop
