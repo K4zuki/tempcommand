@@ -3,9 +3,10 @@
 import visa
 import time
 import datetime
-import os
+import os,sys
 
-import serial2i2c
+sys.path.append('.\\tinyI2C\\python\\')
+import tinyI2C
 
 ## power supply class
 # for Agilent/Keysight E3640A
