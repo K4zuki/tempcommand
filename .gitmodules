@@ -1,0 +1,3 @@
+[submodule "tinyI2C"]
+	path = tinyI2C
+	url = https://github.com/K4zuki/tinyI2C.git
