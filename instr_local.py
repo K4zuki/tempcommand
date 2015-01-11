@@ -5,7 +5,7 @@ import time
 import datetime
 import os,sys
 
-sys.path.append('.\\tinyI2C\\python\\')
+sys.path.append('../tinyI2C/python/')
 import tinyI2C
 
 ## power supply class
