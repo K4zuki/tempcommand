@@ -2,7 +2,7 @@
 #!/usr/bin/env python
 
 import pkg_resources
-pkg_resources.require("pyVisa>=1.5.dev4")
+pkg_resources.require("pyVisa>=1.5")
 import visa
 import time
 import datetime
