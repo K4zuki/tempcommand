@@ -15,8 +15,7 @@ base(D2); ubase(0,1: D2);
     ureg(0,1:41:00); for(ureg:0,1:42:02,B0,A9,8A,A7,A8,B1){}
     # ureg(1:41:00); for(ureg:1:42:02,B0,A9,8A,A7,A8,B1){}
     reg(47:01);
-    # ureg(0,1:47:01);
-
+    ureg(0,1:47:01);
 for(TEMP:  -40,0,100 )
 {
     dely(1); sample();
@@ -41,37 +40,25 @@ sample
 )
 
 def nop(arg):
-    tok,idx,cmd,arg = arg
-    print cmd,arg
+    arg = arg.strip("{}();")
+    arg = arg.split(":")
+    print arg
     # return idx
 
 def reg(arg):
-    tok,idx,cmd,arg = arg
-    arg = arg.strip(";")
-    arg = arg.strip("{")
-    arg = arg.strip("(")
-    arg = arg.strip(")")
+    arg = arg.strip("{}();")
     arg = arg.split(":")
-    print cmd,arg
-    # return idx
-
-def end(arg):
-    tok,idx,cmd,arg = arg
-    print "LOOP"
-    # return idx
+    print arg
 
 def suspend(arg):
-    tok,idx,cmd,arg = arg
+    arg = arg.strip("{}();")
+    arg = arg.split(":")
     print(" SUSPEND: press return to continue ".center(80, "#"))
     raw_input()
-    # return idx
 
-def found_for(arg):
+def serialize_loop(arg):
     __tok,idx,cmd,arg = arg
-    arg = arg.strip(";")
-    arg = arg.strip("{")
-    arg = arg.strip("(")
-    arg = arg.strip(")")
+    arg = arg.strip("{}();")
     arg = arg.split(":")
     # print arg
     _cmd = arg[0]
@@ -132,18 +119,16 @@ def found_for(arg):
 
 command = ["",""]
 callback = {
-"NOP":reg,
-"REG":reg,
-"UREG":reg,
-"CHAN":reg,
-"BASE":reg,
-"UBASE":reg,
-"TEMP":reg,
-"FOR":found_for,
-"}":end,
-"DELY":reg,
-"SAMPLE":reg,
-"SUSPEND":reg,
+    "NOP":nop,
+    "REG":reg,
+    "UREG":reg,
+    "CHAN":reg,
+    "BASE":reg,
+    "UBASE":reg,
+    "TEMP":reg,
+    "DELY":reg,
+    "SAMPLE":reg,
+    "SUSPEND":suspend,
 }
 
 _tok = []
@@ -158,8 +143,8 @@ while(True):
         _tok.append(tok)
         if(tok=="{" or tok==";"):
             __tok.append([_tok[0],"".join(_tok[1:])])
-            _tok=[]
-        if(tok=="}"):
+            _tok = []
+        if(tok == "}"):
             _f = []
             _for = []
             # _for.append([_tok[0],"".join(_tok[1:])])
@@ -170,7 +155,12 @@ while(True):
             # print pprint.pprint(_for)
             # print _f
             _for.reverse()
-            __tok.extend( found_for( (_for, 0, _f[0], _f[1]) ) )
+            __tok.extend( serialize_loop( (_for, 0, _f[0], _f[1]) ) )
             # print pprint.pprint(__tok)
             _tok = []
-print pprint.pprint(__tok)
+# print pprint.pprint(__tok)
+
+for i, command in enumerate(__tok):
+    cmd = command[0]
+    arg = command[1]
+    callback[ cmd ]( arg )
