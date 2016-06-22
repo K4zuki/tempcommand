@@ -234,7 +234,7 @@ class tempcommand():
     commandset["BASE"] = [_base]
 
     def _ulibase(self,argument):
-        ulichan,ulibase= argument.split('=')
+        ulichan,ulibase = argument.split('=')
         print 'i2c slave address set: 0x%X of channel %d'%(int(ulibase,16),int(ulichan,16))
         return 0
 
@@ -340,8 +340,8 @@ if __name__ == '__main__':
         parser.add_command("REG",_register)
         parser.add_command("CHAN",_chanset)
         parser.add_command("DELY",_delay)
-#        print "_command_",parser.commandList
-#        print "_argument_",parser.argumentList
+        # print "_command_",parser.commandList
+        # print "_argument_",parser.argumentList
         parser.make_list(
             """
             chan105+110
@@ -364,25 +364,9 @@ if __name__ == '__main__':
             sample
             """
         )
-#        print parser.commandList
+        # print parser.commandList
         parser.break_loop(parser.commandList,parser.argumentList)
         parser.parse_list(parser.commandList,parser.argumentList,logfile)
-#        raw_input("hoge")
-#        reverse=parser.commandList[:]
-#        reverse.reverse()
-#        print reverse
-#        hitp=parser.commandList.index('FOR')
-#        hitn=reverse.index('LOOP')
-#        parser.parse(
-#            """
-#            for -40+-20+0+20+30+40+60+80+100+120+140; TEMP
-#                dely1
-#                chan105,reg00=ff,SAMPLE
-#                chan106,regff=00,SAMPLE
-#            loop
-#            EOF
-#            """,
-#            logfile)
     except:
         raw_input(str(sys.exc_info()[1]))
     finally:
