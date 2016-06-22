@@ -47,7 +47,7 @@ parser.make_list(
     """
 )
 
-parser.break_loop(parser.commandList,parser.argumentList)
-parser.parse_list(parser.commandList,parser.argumentList, logfile)
+parser.break_loop(parser.commandList, parser.argumentList)
+parser.parse_list(parser.commandList, parser.argumentList, logfile)
 
 ```
