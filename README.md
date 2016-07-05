@@ -1,53 +1,83 @@
+
 tempcommand
 ===========
 
-temperature chamber control command interpreter with ncurses based GUI
+`tempcommand` is yet another mini programming language
 
+```{.python}
+chan(105,110);
+base(90); ubase(0,1: 90);
+reg(00 : ff);
+ureg(0,1: 00 : ff);
+# TEMP(25);
+base(D2); ubase(0,1: D2);
+    reg(41:00); for(reg:42:02,B0,A9,8A,A7,A8,B1){}
+    ureg(0,1:41:00); for(ureg:0,1:42:02,B0,A9,8A,A7,A8,B1){}
+    # ureg(1:41:00); for(ureg:1:42:02,B0,A9,8A,A7,A8,B1){}
+    reg(47:01);
+    ureg(0,1:47:01);
+for(TEMP:  -40,0,100 )
+{
+    dely(1);
+    # sample();
+    for(reg: 00: 00,02,04)
+    {
+        # sample();
+    }
+    for(reg: 02: 0c,0e)
+    {
+        for(reg: 01,0A: 00,02,04)
+        {
+
+            # sample();
+            # sample();
+        }
+    }
+    suspend;
+}
+suspend;
+EOF;
+sample
+```
+* * *
 ```{.python}
 import tempcommand
 
+def nop(arg):
+    arg = arg.strip("{}();")
+    arg = arg.split(":")
+    print arg
+    # return idx
+
+def reg(arg):
+    arg = arg.strip("{}();")
+    arg = arg.split(":")
+    print arg
+
+def suspend(arg):
+    arg = arg.strip("{}();")
+    arg = arg.split(":")
+    print(" SUSPEND: press return to continue ".center(80, "#"))
+    raw_input()
+
+callback = {
+   "NOP":nop,
+   "REG":reg,
+   "UREG":reg,
+   "CHAN":reg,
+   "BASE":reg,
+   "UBASE":reg,
+   "TEMP":reg,
+   "DELY":reg,
+   "SAMPLE":reg,
+   "SUSPEND":suspend,
+}
+
 parser = tempcommand.tempcommand()
 
-logfile = open("hoge.log",'a')
+with open("script.txt", "rb") as file:
+    script = file.read()
 
-
-# add_command("COMMAND", _callback)
-#              ^^^^^^\   ^^^^^^^^^ - _callback() must be defined before this line
-#                     `- always UPPERCASE
-
-parser.add_command("TEMP",parser._temp)
-parser.add_command("EOF",parser._eof)
-parser.add_command("FOR",_for)
-parser.add_command("SAMPLE",_sample)
-parser.add_command("LOOP",_loop)
-parser.add_command("REG",_register)
-parser.add_command("CHAN",_chanset)
-parser.add_command("DELY",_delay)
-
-parser.make_list(
-    """
-    chan105+110
-    reg00=ff
-    for -40+0+100; TEMP
-        dely1
-        sample
-        for 00+02+04; reg00=
-            sample
-        LOOP
-        for 0c+0e; reg02=
-            for 00+02+04; reg01=|regAA=
-                sample
-            LOOP
-        LOOP
-        suspend
-    LOOP
-    suspend
-    EOF
-    sample
-    """
-)
-
-parser.break_loop(parser.commandList, parser.argumentList)
-parser.parse_list(parser.commandList, parser.argumentList, logfile)
+parser.parse(script.upper())
 
 ```
