@@ -83,36 +83,6 @@ def serialize_loop(arg):
     return _stack
     # callback[ cmd ]( (None, 0, _cmd, _arg ))
 
-def nop(arg):
-    arg = arg.strip("{}();")
-    arg = arg.split(":")
-    print arg
-    # return idx
-
-def reg(arg):
-    arg = arg.strip("{}();")
-    arg = arg.split(":")
-    print arg
-
-def suspend(arg):
-    arg = arg.strip("{}();")
-    arg = arg.split(":")
-    print(" SUSPEND: press return to continue ".center(80, "#"))
-    raw_input()
-
-callback = {
-   "NOP":nop,
-   "REG":reg,
-   "UREG":reg,
-   "CHAN":reg,
-   "BASE":reg,
-   "UBASE":reg,
-   "TEMP":reg,
-   "DELY":reg,
-   "SAMPLE":reg,
-   "SUSPEND":suspend,
-}
-
 def parse(script = "eof"):
     _tok = []
     __tok = []
@@ -147,4 +117,46 @@ def parse(script = "eof"):
     for i, command in enumerate(__tok):
         cmd = command[0]
         arg = command[1]
+        # print cmd,arg
         callback[ cmd ]( arg )
+
+callback = {}
+## add_command
+# adds command and casllback functions as dictionary pair
+# @param command command; must be large character
+# @param func callback function; should be started with '_'
+def add_command(command,func):
+    callback[command] = func
+
+def nop(arg):
+    arg = arg.strip("{}();")
+    arg = arg.split(":")
+    print arg
+
+add_command("NOP", nop)
+
+def reg(arg):
+    arg = arg.strip("{}();")
+    arg = arg.split(":")
+    print arg
+
+add_command("REG", reg)
+
+def suspend(arg):
+    arg = arg.strip("{}();")
+    arg = arg.split(":")
+    print(" SUSPEND: press return to continue ".center(80, "#"))
+    raw_input()
+
+add_command("SUSPEND",suspend)
+
+# add_command("NOP",nop)
+# add_command("REG",reg)
+add_command("UREG",reg)
+add_command("CHAN",reg)
+add_command("BASE",reg)
+add_command("UBASE",reg)
+add_command("TEMP",reg)
+add_command("DELY",reg)
+add_command("SAMPLE",reg)
+# add_command("SUSPEND",suspend)
