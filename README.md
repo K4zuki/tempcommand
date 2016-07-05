@@ -4,7 +4,7 @@ tempcommand
 
 `tempcommand` is yet another mini programming language
 
-```{.python}
+```{.txt}
 chan(105,110);
 base(90); ubase(0,1: 90);
 reg(00 : ff);
