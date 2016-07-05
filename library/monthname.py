@@ -30,10 +30,10 @@ def monthname():
         mname="Nov"
     elif mnum == "12":
         mname="Dec"
-        
-    basename=todaydetail.strftime("%Y.%m")+mname+todaydetail.strftime(".%d")
+
+    basename = todaydetail.strftime("%Y.%m") + mname + todaydetail.strftime(".%d")
     return basename
-    
+
 if __name__ == "__main__":
     print "this file returns directory name based on date of today."
     print monthname()
