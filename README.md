@@ -79,13 +79,13 @@ parser.parse(script.upper())
 ```
 # requirement
 - **Python 2.7**
-    - later python2 with `shlex` is needed; 2.6 and 2.7 has it
-    - **Not tested with Python3**
-    - [shlex](https://docs.python.org/2.7/library/shlex.html#module-shlex)
+    - later python2 with `shlex` is needed; 2.7 has it, 2.6 may be also
+    - [shlex help page(python2.7)](https://docs.python.org/2.7/library/shlex.html)
+    - **Not tested with Python3 nor legacy Python2**
 
 # backgrounds
-`tempcommand` uses `shlex` library in python. The library splits the input script
-  into minimum tokens - string, numbers, special characters, etc.
+`tempcommand` uses `shlex` library built in python. The library splits the input
+  script into minimum tokens - string, numbers, special characters, etc.
   Splitted tokens will be scanned until token reaches `EOF` token or end of file.
   The `EOF` token stops scanning script, even if more script remains.
   Other tokens will be concatenated until reaching:
@@ -93,14 +93,43 @@ parser.parse(script.upper())
 - `;` as delimiter
 - `{` as _**beginning**_ of loop structure
 
-and stacked to queue. If read token is `}` then the compiler takes it as _**end**_ of
-  loop and cuts queue from last `{` to this `}`, then throws cut queue to serializer
-  function. The function, `serialize_loop()`, returns serialized(or loop-less)
-  list of tokens, which will be stacked back to the queue again.
+and stacked to queue. Thus each command needs to be terminated by `;`.
+  If read token is `}` then the compiler takes it as _**end**_ of
+  loop and cuts queue from last `{` to this `}`, then throws cut queue to built-in
+  serializer function. The function, `serialize_loop()`, returns
+  serialized(or loop-less) list of tokens, which will be stacked back to
+  the queue again.
 
 # basic rule
 ## tokens
+- `[A-Z][a-z][0-9]*` as one word: `ABCabc` nor `abc123` will be separated
+- `~!@#$%^&*()_+-={}|[]\:";'<>?,./` as one character: `ABC(def);` will
+  be `ABC`, `(`, `def`, `)` and `;`
+- white spaces are always ignored
 
-- `[A-Z][a-z][0-9]*` as one word: `ABCabc` will not be separated
-- `~!@#$%^&*()_+-={}|[]\:";'<>?,./` as one character: `ABC(def);` will be `ABC`,
-  `(`, `def`, `)` and `;`
+## command definition (_Do It Yourself_)
+### Callback function definition
+When scan finishes your command `COMMAND(0:1);` will be decoded by internal dictionary
+  and callback function `command()` will be called. `command()` will get `(0:1);` as
+  one string argument. Your command can use anything(but not `;`,`{`,`}`)
+  by any style.
+
+#### consider loop syntax
+Loop structure (or `FOR` command) needs at least one command and at least one,
+  up to **three** groups of arguments for the command. This means number of argument
+  for `COMMAND` (and `command()`) is limited up to **three**.
+  Command and argument groups will be separated by colon `:` and arguments
+  in one group is separated by comma `,`.
+
+- `FOR(COMMAND : arg1[0],arg1[1],...,arg1[n]){}`
+    - `COMMAND` will get one argument by `n` cases
+- `FOR(COMMAND : arg1[0], arg1[1], ..., arg1[n] : arg2[0], arg2[1], ..., arg2[m]){}`
+    - `COMMAND` will get two arguments by `n` x `m` cases
+- `FOR(COMMAND : arg1[0], ..., arg1[n] : arg2[0], ..., arg2[m] : arg3[0], ..., arg3[p]){}`
+    - `COMMAND` will get three arguments by `n` x `m` x `p` cases
+
+### add_command()
+To append your command as callable command, you first have to define callback function,
+  then call `add_command()` to add `"COMMAND"` and `command` into internal dictionary.
+  `tempcommand.add_command("COMMAND", command)` where `"COMMAND"` needs to be always
+  uppercase, while `command` is not(but defined before this call).
