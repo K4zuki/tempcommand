@@ -22,14 +22,15 @@
 import shlex
 import pprint
 
+
 def serialize_loop(arg):
-    __tok,idx,cmd,arg = arg
+    __tok, idx, cmd, arg = arg
     arg = arg.strip("{}();")
     arg = arg.split(":")
     # print arg
     _cmd = arg[0]
     _arg = arg[1:]
-    __arg = [[],]
+    __arg = [[], ]
     while(_arg):
         __arg.append(_arg.pop().split(','))
     __arg.reverse()
@@ -38,18 +39,18 @@ def serialize_loop(arg):
     # print "len(__arg) = ",len(__arg)
     _stack = []
     inloop = []
-    for i, command in enumerate(__tok, start = idx):
+    for i, command in enumerate(__tok, start=idx):
         cmd = command[0]
         arg = command[1]
-        inloop.append([cmd,arg])
+        inloop.append([cmd, arg])
         # print "%03d"%i,cmd+arg
     # inloop = "".join(inloop)
     cmdtype = len(__arg)
     if(cmdtype == 3):
-        for _,val in enumerate(__arg[2]):
-            for _,_val in enumerate(__arg[1]):
-                for _,__val in enumerate(__arg[0]):
-                    _stack.append([_cmd, ":".join([__val,_val,val])])
+        for _, val in enumerate(__arg[2]):
+            for _, _val in enumerate(__arg[1]):
+                for _, __val in enumerate(__arg[0]):
+                    _stack.append([_cmd, ":".join([__val, _val, val])])
                     _stack.extend(inloop)
                 #     print "%s(%s:%s:%s);%s" %(
                 #     _cmd,
@@ -59,9 +60,9 @@ def serialize_loop(arg):
                 #     ),
                 # print
     elif(cmdtype == 2):
-        for _,_val in enumerate(__arg[1]):
-            for _,__val in enumerate(__arg[0]):
-                _stack.append([_cmd, ":".join([__val,_val])])
+        for _, _val in enumerate(__arg[1]):
+            for _, __val in enumerate(__arg[0]):
+                _stack.append([_cmd, ":".join([__val, _val])])
                 # print pprint.pprint(_stack)
                 _stack.extend(inloop)
             #     print "%s(%s:%s);%s" %(
@@ -71,7 +72,7 @@ def serialize_loop(arg):
             #     ),
             # print
     elif(cmdtype == 1):
-        for _,__val in enumerate(__arg[0]):
+        for _, __val in enumerate(__arg[0]):
             _stack.append([_cmd, __val])
             _stack.extend(inloop)
             # print "%s(%s);%s" %(
@@ -83,20 +84,21 @@ def serialize_loop(arg):
     return _stack
     # callback[ cmd ]( (None, 0, _cmd, _arg ))
 
-def parse(script = "eof"):
+
+def parse(script="eof"):
     _tok = []
     __tok = []
     _for = []
     tokens = shlex.shlex(script.upper())
     while(True):
         tok = tokens.get_token()
-        if (not tok) or (tok=="EOF"):
+        if (not tok) or (tok == "EOF"):
             break
         else:
             # print tok
             _tok.append(tok)
-            if(tok=="{" or tok==";"):
-                __tok.append([_tok[0],"".join(_tok[1:])])
+            if(tok == "{" or tok == ";"):
+                __tok.append([_tok[0], "".join(_tok[1:])])
                 _tok = []
             if(tok == "}"):
                 # _f = []
@@ -109,7 +111,7 @@ def parse(script = "eof"):
                 # print pprint.pprint(_for)
                 # print _f
                 _for.reverse()
-                __tok.extend( serialize_loop( (_for, 0, _f[0], _f[1]) ) )
+                __tok.extend(serialize_loop((_for, 0, _f[0], _f[1])))
                 # print pprint.pprint(__tok)
                 _tok = []
     # print pprint.pprint(__tok)
@@ -118,15 +120,18 @@ def parse(script = "eof"):
         cmd = command[0]
         arg = command[1]
         # print cmd,arg
-        callback[ cmd ]( arg )
+        callback[cmd](arg)
 
 callback = {}
-## add_command
+# add_command
 # adds command and casllback functions as dictionary pair
 # @param command command; must be large character
 # @param func callback function; should be started with '_'
-def add_command(command,func):
+
+
+def add_command(command, func):
     callback[command] = func
+
 
 def nop(arg):
     arg = arg.strip("{}();")
@@ -135,6 +140,7 @@ def nop(arg):
 
 add_command("NOP", nop)
 
+
 def reg(arg):
     arg = arg.strip("{}();")
     arg = arg.split(":")
@@ -142,21 +148,22 @@ def reg(arg):
 
 add_command("REG", reg)
 
+
 def suspend(arg):
     arg = arg.strip("{}();")
     arg = arg.split(":")
     print(" SUSPEND: press return to continue ".center(80, "#"))
     raw_input()
 
-add_command("SUSPEND",suspend)
+add_command("SUSPEND", suspend)
 
 # add_command("NOP",nop)
 # add_command("REG",reg)
-add_command("UREG",reg)
-add_command("CHAN",reg)
-add_command("BASE",reg)
-add_command("UBASE",reg)
-add_command("TEMP",reg)
-add_command("DELY",reg)
-add_command("SAMPLE",reg)
+add_command("UREG", reg)
+add_command("CHAN", reg)
+add_command("BASE", reg)
+add_command("UBASE", reg)
+add_command("TEMP", reg)
+add_command("DELY", reg)
+add_command("SAMPLE", reg)
 # add_command("SUSPEND",suspend)
