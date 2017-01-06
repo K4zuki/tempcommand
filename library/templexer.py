@@ -117,13 +117,14 @@ def parse(script="eof"):
                 _tok = []
     # print pprint.pprint(__tok)
 
-    for i, command in enumerate(__tok):
-        cmd = command[0]
-        arg = command[1]
-        # print cmd,arg
-        ret.append(callback[cmd](arg))
-
-    return ret
+    try:
+        for i, command in enumerate(__tok):
+            cmd = command[0]
+            arg = command[1]
+            # print cmd,arg
+            ret.append(str(callback[cmd](arg)))
+    finally:
+        return ret
 
 callback = {}
 # add_command
