@@ -89,6 +89,7 @@ def parse(script="eof"):
     _tok = []
     __tok = []
     _for = []
+    ret = []
     tokens = shlex.shlex(script.upper())
     while(True):
         tok = tokens.get_token()
@@ -120,7 +121,9 @@ def parse(script="eof"):
         cmd = command[0]
         arg = command[1]
         # print cmd,arg
-        callback[cmd](arg)
+        ret.append(callback[cmd](arg))
+
+    return ret
 
 callback = {}
 # add_command
